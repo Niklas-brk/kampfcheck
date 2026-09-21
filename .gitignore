@@ -1,0 +1,33 @@
+# Dependencies and generated desktop builds
+node_modules/
+.cache/
+release/
+*.log
+*.zip
+*.exe
+*.msi
+
+# Credentials and private hosting configuration
+.env
+.env.*
+!.env.example
+.openai/
+.sites-runtime/
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Personal local application state, exports, and editor files
+user-data/
+User Data/
+teams/
+backups/
+*-team.json
+*-teams.json
+kampfcheck-team*.json
+kampfcheck-backup*.json
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

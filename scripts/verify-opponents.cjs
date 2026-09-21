@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');
+global.window=global;require('../dist/vendor/calc-data.min.js');require('../dist/vendor/calc.min.js');require('../dist/core.js');require('../dist/team-library.js');require('../dist/library-ui.js');
+const data=new Map();global.localStorage={getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)};
+const events={},input={value:'Gegner geändert',focus(){},select(){}};const dialog={addEventListener:(name,fn)=>events[name]=fn,setAttribute(){},querySelector:()=>input,showModal(){},close(){}};
+global.document={getElementById:()=>dialog};global.scrollTo=()=>{};
+const set={species:'Garchomp',nature:'Jolly',points:{hp:2,atk:32,def:0,spa:0,spd:0,spe:32},ability:'Rough Skin',item:'',moves:['Earthquake','Dragon Claw','Rock Slide','Protect']};const own=Array.from({length:6},()=>structuredClone(set));
+const foe=own.map(s=>({...structuredClone(s),nature:'Adamant'}));const foeLib=KampfLibrary.create(localStorage,KampfLibrary.FOE_KEY),record=foeLib.upsert({name:'Gegner',team:foe,mode:'Singles'});
+const ownLib=KampfLibrary.create(localStorage),ownRecord=ownLib.upsert({name:'Eigenes Team',team:own,mode:'Doubles'});
+const state={own,ownLibraryId:ownRecord.id,ownName:'Eigenes Team',example:true,foe:structuredClone(own),foeLibraryId:null,foeName:'Gegnerteam',field:{gameType:'Doubles'},view:'calc',builder:structuredClone(own)};
+let ownSaveCalls=0;const ui=createKampfLibraryUI({state,esc:x=>x,tr:(_,x)=>x,sprite:()=>'',itemIcon:()=>'',render(){},save(){ownSaveCalls++;},savePreferences(){},toast(){}});
+const before=JSON.stringify({own:state.own,id:state.ownLibraryId,name:state.ownName,example:state.example}),stored=data.get(KampfLibrary.KEY);
+ui.handle('foe-teams');ui.handle('use-saved-team',record.id);
+assert.equal(JSON.stringify({own:state.own,id:state.ownLibraryId,name:state.ownName,example:state.example}),before);assert.equal(data.get(KampfLibrary.KEY),stored);assert.equal(ownSaveCalls,0);assert.equal(state.foe[0].nature,'Adamant');assert.equal(state.field.gameType,'Singles');assert.equal(state.foeIndex,0);
+state.foe[0].nature='Brave';assert.equal(foeLib.load().teams[0].team[0].nature,'Adamant');
+state.view='team';ui.handle('save-foe-team');events.submit({preventDefault(){},submitter:{value:'save'}});
+assert.equal(foeLib.load().teams[0].team[0].nature,'Brave');assert.equal(foeLib.load().teams[0].name,'Gegner geändert');assert.equal(data.get(KampfLibrary.KEY),stored);assert.equal(ownSaveCalls,0);assert.equal(state.builder[0].nature,'Jolly');
+console.log('Opponent checks passed: load/save target the opponent only, snapshots stay isolated, own library and working team stay unchanged.');
