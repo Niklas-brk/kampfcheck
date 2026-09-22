@@ -3,6 +3,8 @@
 - **Smogon Damage Calc 0.12.0**: https://github.com/smogon/damage-calc — MIT, Lizenz in `dist/vendor/LICENSE-calc.txt`.
 - **PokéAPI**: https://github.com/PokeAPI/pokeapi — BSD-3-Clause; deutsche Namen und öffentliche Pokémon-Daten. Sprite-Quelle: https://github.com/PokeAPI/sprites . Pokémon-Abbildungen und Marken bleiben Eigentum der jeweiligen Rechteinhaber.
 - **Pokémon Showdown**: https://github.com/smogon/pokemon-showdown-client — Item-Icon-Zuordnung und Icon-Sheet. Die enthaltenen Pokémon-Grafiken unterliegen den Rechten ihrer jeweiligen Eigentümer.
+- **Pokémon Showdown Server**: https://github.com/smogon/pokemon-showdown — MIT; Champions-Learnsets, formbezogene Fähigkeiten, Verfügbarkeitsmerkmale und Grundlage der selbst formulierten deutschen Item-Beschreibungen. Der genaue Commit steht in `dist/champions-data.js`; Lizenz in `dist/vendor/LICENSE-showdown.txt`.
+- **Pokémon Champions, Reglement M-C**: https://champions-news.pokemon-home.com/en/page/816.html — offizielle Pokémon-Verfügbarkeit und Zeitraum. Die öffentliche Ausgangsliste und die überprüfte Formzuordnung stehen in `scripts/data/official-regulation-mc.json`.
 - **PokéWiki**: https://www.pokewiki.de/Mega-Steine — zusätzliche deutsche Itemnamen. Einzelquellen und Lizenzangaben stehen in `dist/item-names-de.js`.
 - **Meta-Daten**: https://poke.itlibra.com/opendata/ — öffentliche Nutzungsdaten; Snapshot und Erhebungszeitraum stehen in der App.
 - **Turnierteams**: Originalquellen zu den jeweiligen Vorlagen stehen in `dist/templates.js` und werden in der App verlinkt.

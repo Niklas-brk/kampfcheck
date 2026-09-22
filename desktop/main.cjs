@@ -37,7 +37,7 @@ let mainWindow;
 const singleInstance = app.requestSingleInstanceLock();
 if(!singleInstance) app.quit();
 else {
-  app.on('second-instance',()=>{ if(mainWindow){if(mainWindow.isMinimized())mainWindow.restore();mainWindow.focus();} });
+  app.on('second-instance',()=>{ if(mainWindow){if(mainWindow.isMinimized())mainWindow.restore();mainWindow.show();mainWindow.focus();} });
   app.whenReady().then(async()=>{
     session.defaultSession.setPermissionRequestHandler((_webContents,_permission,callback)=>callback(false));
     session.defaultSession.setPermissionCheckHandler(()=>false);

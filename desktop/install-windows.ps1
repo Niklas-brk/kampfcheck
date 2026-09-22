@@ -10,13 +10,18 @@ $ErrorActionPreference = 'Stop'
 
 $projectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 if ([string]::IsNullOrWhiteSpace($SourcePath)) {
-    $SourcePath = Join-Path $projectRoot 'release\Kampfcheck-win32-x64'
+    $buildPackage = Get-Content -LiteralPath (Join-Path $projectRoot 'package.json') -Raw | ConvertFrom-Json
+    if ($buildPackage.version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid application version.' }
+    $SourcePath = Join-Path $projectRoot ('release\Kampfcheck-' + $buildPackage.version + '-win32-x64')
 }
 if (-not (Test-Path -LiteralPath $SourcePath -PathType Container)) {
     throw "Build folder not found: $SourcePath. Run desktop\build-windows.ps1 first, or pass -SourcePath."
 }
 $resolvedSource = (Resolve-Path -LiteralPath $SourcePath).ProviderPath
-$appVersion = '1.0.0'
+$sourcePackagePath = Join-Path $resolvedSource 'resources\app\package.json'
+$sourcePackage = Get-Content -LiteralPath $sourcePackagePath -Raw | ConvertFrom-Json
+if ($sourcePackage.version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid application version.' }
+$appVersion = $sourcePackage.version
 $localAppData = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)
 if ([string]::IsNullOrWhiteSpace($localAppData)) {
     throw 'The current user has no LocalApplicationData folder. Installation cannot continue.'

@@ -1,0 +1,47 @@
+const assert=require('node:assert/strict');
+global.window=global;
+for(const file of ['vendor/calc-data.min','vendor/calc.min','core','german','champions-data','legality','team-tools','team-library','templates'])require('../dist/'+file+'.js');
+const Q=KampfLegality,T=KampfTeam,G=KampfCore.G;
+const set={species:'Garchomp',nature:'Jolly',ability:'Rough Skin',item:'',points:{hp:2,atk:32,def:0,spa:0,spd:0,spe:32},moves:['Dragon Claw','Earthquake','Rock Slide','Protect']};
+assert.equal(Q.validate(set),'');
+assert.equal(Q.canMove('Garchomp','Thunderbolt'),false);
+assert.equal(Q.canAbility('Garchomp','Levitate'),false);
+assert.deepEqual(Q.entry('Garchomp').abilities,['Sand Veil','Rough Skin']);
+assert.equal(Q.available('Aegislash-Both'),false);
+assert.equal(Q.available('Bulbasaur'),false);
+assert.equal(Q.available('Greninja-Ash'),false);
+assert.equal(Q.canAbility('Greninja','Battle Bond'),false);
+assert.equal(Q.canMove('Rotom-Wash','Hydro Pump'),true);
+assert.equal(Q.canMove('Rotom-Wash','Overheat'),false);
+assert.equal(Q.canMove('Rotom-Heat','Overheat'),true);
+assert.equal(Q.canMove('Rotom-Heat','Hydro Pump'),false);
+assert.equal(Q.canAbility('Meowstic-F','Prankster'),false);
+assert.equal(Q.canAbility('Meowstic-F','Competitive'),true);
+assert.equal(Q.canAbility('Meowstic','Prankster'),true);
+assert.equal(Q.canAbility('Lucario-Mega-Z','Aura Guard'),true);
+assert.equal(Q.canMove('Floette-Mega','Light of Ruin'),true);
+assert.equal(Q.canItem('Loaded Dice'),false);
+assert.equal(Q.canItem('Sitrus Berry'),true);
+const mega=T.switchForm(set,'Garchomp-Mega-Z');
+assert.equal(mega.ability,'Levitate');assert.equal(mega.item,'Garchompite Z');assert.equal(Q.validate(mega),'');
+assert.equal(T.switchForm(mega,'Garchomp').ability,'Rough Skin');
+assert.equal(Q.prepare({...set,moves:['Thunderbolt','Protect','Protect','Earthquake']}).moves.join(','),'Protect,Earthquake,(No Move),(No Move)');
+assert.match(Q.validate({...set,moves:['Protect','Protect','Earthquake','Dragon Claw']}),/doppelt/);
+assert.equal(Q.validate(Q.prepare({...set,species:'Ditto',ability:'Imposter',moves:['Transform']})),'');
+for(const [name,d]of Object.entries(Q.data.pokemon)){
+ assert.ok(d.moves.length&&d.abilities.length,name);
+ for(const move of d.moves)assert.ok(G.moves.get(calc.toID(move)),name+': '+move);
+ for(const ability of d.abilities)assert.ok(G.abilities.get(calc.toID(ability)),name+': '+ability);
+}
+for(const team of KampfTemplates.teams)for(const s of team.sets)assert.equal(Q.validate(s),'',team.player+': '+s.species);
+// Legacy snapshots stay readable and untouched, but an invalid set cannot be saved anew.
+const values=new Map(),store={getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,v)};
+const library=KampfLibrary.create(store),team=Array.from({length:6},()=>structuredClone(set));
+const record=library.upsert({name:'Prüfung',team,mode:'Doubles'});
+const legacy=JSON.parse(values.get(KampfLibrary.KEY));legacy.teams[0].team[0].ability='Levitate';
+const original=JSON.stringify(legacy);values.set(KampfLibrary.KEY,original);
+assert.equal(library.load().teams[0].team[0].ability,'Levitate');
+assert.equal(values.get(KampfLibrary.KEY),original);
+assert.throws(()=>library.upsert({...record,team:legacy.teams[0].team}),/Fähigkeit/);
+assert.equal(values.get(KampfLibrary.KEY),original);
+console.log('Champions checks passed: species-specific moves/abilities, forms, unavailable entries, templates, legacy preservation and strict new saves.');

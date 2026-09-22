@@ -10,11 +10,11 @@
  function usageSet(p,makeSet,usedItems=new Set()){
   const s=makeSet(p.name),spread=p.spreads?.find(x=>G.natures.get(C.toID(x.nature))&&Array.isArray(x.evs)&&x.evs.length===6&&x.evs.every(v=>Number.isInteger(v)&&v>=0&&v<=32)&&x.evs.reduce((a,b)=>a+b,0)<=66);
   if(spread){s.nature=spread.nature;s.points=Object.fromEntries(K.STATS.map((k,i)=>[k,spread.evs[i]]));}
-  const ability=p.abilities?.map(a=>G.abilities.get(C.toID(a.id))).find(Boolean);if(ability)s.ability=ability.name;
-  const megaItem=root.KampfTeam.megaItem(p.name);const item=p.items.map(i=>G.items.get(C.toID(i.id))).find(i=>i&&!usedItems.has(i.name));s.item=megaItem||item?.name||'';if(s.item)usedItems.add(s.item);
-  const moves=p.moves.map(m=>G.moves.get(C.toID(m.id))).filter(Boolean).slice(0,4).map(m=>m.name);if(moves.length===4)s.moves=moves;
-  return s;
+  const ability=p.abilities?.map(a=>G.abilities.get(C.toID(a.id))).find(a=>a&&(!root.KampfLegality||root.KampfLegality.canAbility(s.species,a.name)));if(ability)s.ability=ability.name;
+  const megaItem=root.KampfTeam.megaItem(p.name);const item=p.items.map(i=>G.items.get(C.toID(i.id))).find(i=>i&&!usedItems.has(i.name)&&(!root.KampfLegality||root.KampfLegality.canItem(i.name)));s.item=megaItem||item?.name||'';if(s.item)usedItems.add(s.item);
+  const moves=p.moves.map(m=>G.moves.get(C.toID(m.id))).filter(m=>m&&(!root.KampfLegality||root.KampfLegality.canMove(s.species,m.name))).slice(0,4).map(m=>m.name);if(moves.length===4)s.moves=moves;
+  return root.KampfLegality?root.KampfLegality.prepare(s):s;
  }
- function suggestions(mode){const data=feeds[mode],known=data.pokemon.filter(p=>G.species.get(C.toID(p.name)));return known.slice(0,3).map(seed=>{const chosen=[seed],base=n=>root.KampfTeam.forms(n)[0]?.name||n;for(const p of [...seed.teammates.map(t=>known.find(p=>p.id===t.id)).filter(Boolean),...known]){if(chosen.length===6)break;if(chosen.some(c=>base(c.name)===base(p.name)))continue;if(p.name.includes('-Mega')&&chosen.some(c=>c.name.includes('-Mega')))continue;chosen.push(p);}return{seed:seed.name,pokemon:chosen};}).filter(x=>x.pokemon.length===6);}
+ function suggestions(mode){const data=feeds[mode],known=data.pokemon.filter(p=>G.species.get(C.toID(p.name))&&(!root.KampfLegality||root.KampfLegality.available(p.name)));return known.slice(0,3).map(seed=>{const chosen=[seed],base=n=>root.KampfTeam.forms(n)[0]?.name||n;for(const p of [...seed.teammates.map(t=>known.find(p=>p.id===t.id)).filter(Boolean),...known]){if(chosen.length===6)break;if(chosen.some(c=>base(c.name)===base(p.name)))continue;if(p.name.includes('-Mega')&&chosen.some(c=>c.name.includes('-Mega')))continue;chosen.push(p);}return{seed:seed.name,pokemon:chosen};}).filter(x=>x.pokemon.length===6);}
  root.KampfMeta={feeds,status,checked,refresh,usageSet,suggestions,urls};
 })(window);

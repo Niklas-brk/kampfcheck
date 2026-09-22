@@ -1,0 +1,1850 @@
+{
+  "source": "https://web-view.app.pokemonchampions.jp/battle/pages/events/rs178713870219xeaaio/en/pokemon.html",
+  "regulationSource": "https://champions-news.pokemon-home.com/en/page/816.html",
+  "regulation": "M-C",
+  "startsAt": "2026-09-09T02:00:00Z",
+  "endsAt": "2026-12-02T01:59:00Z",
+  "retrievedAt": "2026-09-21T19:08:47.067Z",
+  "pokemon": [
+    {
+      "officialId": "0003-000",
+      "eligible": 1,
+      "officialName": "Venusaur",
+      "showdownId": "venusaur",
+      "showdownName": "Venusaur"
+    },
+    {
+      "officialId": "0006-000",
+      "eligible": 1,
+      "officialName": "Charizard",
+      "showdownId": "charizard",
+      "showdownName": "Charizard"
+    },
+    {
+      "officialId": "0009-000",
+      "eligible": 1,
+      "officialName": "Blastoise",
+      "showdownId": "blastoise",
+      "showdownName": "Blastoise"
+    },
+    {
+      "officialId": "0015-000",
+      "eligible": 1,
+      "officialName": "Beedrill",
+      "showdownId": "beedrill",
+      "showdownName": "Beedrill"
+    },
+    {
+      "officialId": "0018-000",
+      "eligible": 1,
+      "officialName": "Pidgeot",
+      "showdownId": "pidgeot",
+      "showdownName": "Pidgeot"
+    },
+    {
+      "officialId": "0024-000",
+      "eligible": 1,
+      "officialName": "Arbok",
+      "showdownId": "arbok",
+      "showdownName": "Arbok"
+    },
+    {
+      "officialId": "0025-000",
+      "eligible": 1,
+      "officialName": "Pikachu",
+      "showdownId": "pikachu",
+      "showdownName": "Pikachu"
+    },
+    {
+      "officialId": "0026-000",
+      "eligible": 1,
+      "officialName": "Raichu",
+      "showdownId": "raichu",
+      "showdownName": "Raichu"
+    },
+    {
+      "officialId": "0026-001",
+      "eligible": 1,
+      "officialName": "Raichu (Alolan Form)",
+      "showdownId": "raichualola",
+      "showdownName": "Raichu-Alola"
+    },
+    {
+      "officialId": "0036-000",
+      "eligible": 1,
+      "officialName": "Clefable",
+      "showdownId": "clefable",
+      "showdownName": "Clefable"
+    },
+    {
+      "officialId": "0038-000",
+      "eligible": 1,
+      "officialName": "Ninetales",
+      "showdownId": "ninetales",
+      "showdownName": "Ninetales"
+    },
+    {
+      "officialId": "0038-001",
+      "eligible": 1,
+      "officialName": "Ninetales (Alolan Form)",
+      "showdownId": "ninetalesalola",
+      "showdownName": "Ninetales-Alola"
+    },
+    {
+      "officialId": "0040-000",
+      "eligible": 1,
+      "officialName": "Wigglytuff",
+      "showdownId": "wigglytuff",
+      "showdownName": "Wigglytuff"
+    },
+    {
+      "officialId": "0045-000",
+      "eligible": 1,
+      "officialName": "Vileplume",
+      "showdownId": "vileplume",
+      "showdownName": "Vileplume"
+    },
+    {
+      "officialId": "0053-000",
+      "eligible": 1,
+      "officialName": "Persian",
+      "showdownId": "persian",
+      "showdownName": "Persian"
+    },
+    {
+      "officialId": "0053-001",
+      "eligible": 1,
+      "officialName": "Persian (Alolan Form)",
+      "showdownId": "persianalola",
+      "showdownName": "Persian-Alola"
+    },
+    {
+      "officialId": "0059-000",
+      "eligible": 1,
+      "officialName": "Arcanine",
+      "showdownId": "arcanine",
+      "showdownName": "Arcanine"
+    },
+    {
+      "officialId": "0059-001",
+      "eligible": 1,
+      "officialName": "Arcanine (Hisuian Form)",
+      "showdownId": "arcaninehisui",
+      "showdownName": "Arcanine-Hisui"
+    },
+    {
+      "officialId": "0065-000",
+      "eligible": 1,
+      "officialName": "Alakazam",
+      "showdownId": "alakazam",
+      "showdownName": "Alakazam"
+    },
+    {
+      "officialId": "0068-000",
+      "eligible": 1,
+      "officialName": "Machamp",
+      "showdownId": "machamp",
+      "showdownName": "Machamp"
+    },
+    {
+      "officialId": "0071-000",
+      "eligible": 1,
+      "officialName": "Victreebel",
+      "showdownId": "victreebel",
+      "showdownName": "Victreebel"
+    },
+    {
+      "officialId": "0080-000",
+      "eligible": 1,
+      "officialName": "Slowbro",
+      "showdownId": "slowbro",
+      "showdownName": "Slowbro"
+    },
+    {
+      "officialId": "0080-002",
+      "eligible": 1,
+      "officialName": "Slowbro (Galarian Form)",
+      "showdownId": "slowbrogalar",
+      "showdownName": "Slowbro-Galar"
+    },
+    {
+      "officialId": "0083-000",
+      "eligible": 1,
+      "officialName": "Farfetch’d",
+      "showdownId": "farfetchd",
+      "showdownName": "Farfetch’d"
+    },
+    {
+      "officialId": "0094-000",
+      "eligible": 1,
+      "officialName": "Gengar",
+      "showdownId": "gengar",
+      "showdownName": "Gengar"
+    },
+    {
+      "officialId": "0115-000",
+      "eligible": 1,
+      "officialName": "Kangaskhan",
+      "showdownId": "kangaskhan",
+      "showdownName": "Kangaskhan"
+    },
+    {
+      "officialId": "0121-000",
+      "eligible": 1,
+      "officialName": "Starmie",
+      "showdownId": "starmie",
+      "showdownName": "Starmie"
+    },
+    {
+      "officialId": "0122-000",
+      "eligible": 1,
+      "officialName": "Mr. Mime",
+      "showdownId": "mrmime",
+      "showdownName": "Mr. Mime"
+    },
+    {
+      "officialId": "0127-000",
+      "eligible": 1,
+      "officialName": "Pinsir",
+      "showdownId": "pinsir",
+      "showdownName": "Pinsir"
+    },
+    {
+      "officialId": "0128-000",
+      "eligible": 1,
+      "officialName": "Tauros",
+      "showdownId": "tauros",
+      "showdownName": "Tauros"
+    },
+    {
+      "officialId": "0128-001",
+      "eligible": 1,
+      "officialName": "Tauros (Paldean Form (Combat Breed))",
+      "showdownId": "taurospaldeacombat",
+      "showdownName": "Tauros-Paldea-Combat"
+    },
+    {
+      "officialId": "0128-002",
+      "eligible": 1,
+      "officialName": "Tauros (Paldean Form (Blaze Breed))",
+      "showdownId": "taurospaldeablaze",
+      "showdownName": "Tauros-Paldea-Blaze"
+    },
+    {
+      "officialId": "0128-003",
+      "eligible": 1,
+      "officialName": "Tauros (Paldean Form (Aqua Breed))",
+      "showdownId": "taurospaldeaaqua",
+      "showdownName": "Tauros-Paldea-Aqua"
+    },
+    {
+      "officialId": "0130-000",
+      "eligible": 1,
+      "officialName": "Gyarados",
+      "showdownId": "gyarados",
+      "showdownName": "Gyarados"
+    },
+    {
+      "officialId": "0132-000",
+      "eligible": 1,
+      "officialName": "Ditto",
+      "showdownId": "ditto",
+      "showdownName": "Ditto"
+    },
+    {
+      "officialId": "0134-000",
+      "eligible": 1,
+      "officialName": "Vaporeon",
+      "showdownId": "vaporeon",
+      "showdownName": "Vaporeon"
+    },
+    {
+      "officialId": "0135-000",
+      "eligible": 1,
+      "officialName": "Jolteon",
+      "showdownId": "jolteon",
+      "showdownName": "Jolteon"
+    },
+    {
+      "officialId": "0136-000",
+      "eligible": 1,
+      "officialName": "Flareon",
+      "showdownId": "flareon",
+      "showdownName": "Flareon"
+    },
+    {
+      "officialId": "0142-000",
+      "eligible": 1,
+      "officialName": "Aerodactyl",
+      "showdownId": "aerodactyl",
+      "showdownName": "Aerodactyl"
+    },
+    {
+      "officialId": "0143-000",
+      "eligible": 1,
+      "officialName": "Snorlax",
+      "showdownId": "snorlax",
+      "showdownName": "Snorlax"
+    },
+    {
+      "officialId": "0149-000",
+      "eligible": 1,
+      "officialName": "Dragonite",
+      "showdownId": "dragonite",
+      "showdownName": "Dragonite"
+    },
+    {
+      "officialId": "0154-000",
+      "eligible": 1,
+      "officialName": "Meganium",
+      "showdownId": "meganium",
+      "showdownName": "Meganium"
+    },
+    {
+      "officialId": "0157-000",
+      "eligible": 1,
+      "officialName": "Typhlosion",
+      "showdownId": "typhlosion",
+      "showdownName": "Typhlosion"
+    },
+    {
+      "officialId": "0157-001",
+      "eligible": 1,
+      "officialName": "Typhlosion (Hisuian Form)",
+      "showdownId": "typhlosionhisui",
+      "showdownName": "Typhlosion-Hisui"
+    },
+    {
+      "officialId": "0160-000",
+      "eligible": 1,
+      "officialName": "Feraligatr",
+      "showdownId": "feraligatr",
+      "showdownName": "Feraligatr"
+    },
+    {
+      "officialId": "0168-000",
+      "eligible": 1,
+      "officialName": "Ariados",
+      "showdownId": "ariados",
+      "showdownName": "Ariados"
+    },
+    {
+      "officialId": "0181-000",
+      "eligible": 1,
+      "officialName": "Ampharos",
+      "showdownId": "ampharos",
+      "showdownName": "Ampharos"
+    },
+    {
+      "officialId": "0184-000",
+      "eligible": 1,
+      "officialName": "Azumarill",
+      "showdownId": "azumarill",
+      "showdownName": "Azumarill"
+    },
+    {
+      "officialId": "0186-000",
+      "eligible": 1,
+      "officialName": "Politoed",
+      "showdownId": "politoed",
+      "showdownName": "Politoed"
+    },
+    {
+      "officialId": "0196-000",
+      "eligible": 1,
+      "officialName": "Espeon",
+      "showdownId": "espeon",
+      "showdownName": "Espeon"
+    },
+    {
+      "officialId": "0197-000",
+      "eligible": 1,
+      "officialName": "Umbreon",
+      "showdownId": "umbreon",
+      "showdownName": "Umbreon"
+    },
+    {
+      "officialId": "0199-000",
+      "eligible": 1,
+      "officialName": "Slowking",
+      "showdownId": "slowking",
+      "showdownName": "Slowking"
+    },
+    {
+      "officialId": "0199-001",
+      "eligible": 1,
+      "officialName": "Slowking (Galarian Form)",
+      "showdownId": "slowkinggalar",
+      "showdownName": "Slowking-Galar"
+    },
+    {
+      "officialId": "0205-000",
+      "eligible": 1,
+      "officialName": "Forretress",
+      "showdownId": "forretress",
+      "showdownName": "Forretress"
+    },
+    {
+      "officialId": "0208-000",
+      "eligible": 1,
+      "officialName": "Steelix",
+      "showdownId": "steelix",
+      "showdownName": "Steelix"
+    },
+    {
+      "officialId": "0211-000",
+      "eligible": 1,
+      "officialName": "Qwilfish",
+      "showdownId": "qwilfish",
+      "showdownName": "Qwilfish"
+    },
+    {
+      "officialId": "0212-000",
+      "eligible": 1,
+      "officialName": "Scizor",
+      "showdownId": "scizor",
+      "showdownName": "Scizor"
+    },
+    {
+      "officialId": "0214-000",
+      "eligible": 1,
+      "officialName": "Heracross",
+      "showdownId": "heracross",
+      "showdownName": "Heracross"
+    },
+    {
+      "officialId": "0227-000",
+      "eligible": 1,
+      "officialName": "Skarmory",
+      "showdownId": "skarmory",
+      "showdownName": "Skarmory"
+    },
+    {
+      "officialId": "0229-000",
+      "eligible": 1,
+      "officialName": "Houndoom",
+      "showdownId": "houndoom",
+      "showdownName": "Houndoom"
+    },
+    {
+      "officialId": "0248-000",
+      "eligible": 1,
+      "officialName": "Tyranitar",
+      "showdownId": "tyranitar",
+      "showdownName": "Tyranitar"
+    },
+    {
+      "officialId": "0254-000",
+      "eligible": 1,
+      "officialName": "Sceptile",
+      "showdownId": "sceptile",
+      "showdownName": "Sceptile"
+    },
+    {
+      "officialId": "0257-000",
+      "eligible": 1,
+      "officialName": "Blaziken",
+      "showdownId": "blaziken",
+      "showdownName": "Blaziken"
+    },
+    {
+      "officialId": "0260-000",
+      "eligible": 1,
+      "officialName": "Swampert",
+      "showdownId": "swampert",
+      "showdownName": "Swampert"
+    },
+    {
+      "officialId": "0279-000",
+      "eligible": 1,
+      "officialName": "Pelipper",
+      "showdownId": "pelipper",
+      "showdownName": "Pelipper"
+    },
+    {
+      "officialId": "0282-000",
+      "eligible": 1,
+      "officialName": "Gardevoir",
+      "showdownId": "gardevoir",
+      "showdownName": "Gardevoir"
+    },
+    {
+      "officialId": "0302-000",
+      "eligible": 1,
+      "officialName": "Sableye",
+      "showdownId": "sableye",
+      "showdownName": "Sableye"
+    },
+    {
+      "officialId": "0303-000",
+      "eligible": 1,
+      "officialName": "Mawile",
+      "showdownId": "mawile",
+      "showdownName": "Mawile"
+    },
+    {
+      "officialId": "0306-000",
+      "eligible": 1,
+      "officialName": "Aggron",
+      "showdownId": "aggron",
+      "showdownName": "Aggron"
+    },
+    {
+      "officialId": "0308-000",
+      "eligible": 1,
+      "officialName": "Medicham",
+      "showdownId": "medicham",
+      "showdownName": "Medicham"
+    },
+    {
+      "officialId": "0310-000",
+      "eligible": 1,
+      "officialName": "Manectric",
+      "showdownId": "manectric",
+      "showdownName": "Manectric"
+    },
+    {
+      "officialId": "0317-000",
+      "eligible": 1,
+      "officialName": "Swalot",
+      "showdownId": "swalot",
+      "showdownName": "Swalot"
+    },
+    {
+      "officialId": "0319-000",
+      "eligible": 1,
+      "officialName": "Sharpedo",
+      "showdownId": "sharpedo",
+      "showdownName": "Sharpedo"
+    },
+    {
+      "officialId": "0323-000",
+      "eligible": 1,
+      "officialName": "Camerupt",
+      "showdownId": "camerupt",
+      "showdownName": "Camerupt"
+    },
+    {
+      "officialId": "0324-000",
+      "eligible": 1,
+      "officialName": "Torkoal",
+      "showdownId": "torkoal",
+      "showdownName": "Torkoal"
+    },
+    {
+      "officialId": "0334-000",
+      "eligible": 1,
+      "officialName": "Altaria",
+      "showdownId": "altaria",
+      "showdownName": "Altaria"
+    },
+    {
+      "officialId": "0350-000",
+      "eligible": 1,
+      "officialName": "Milotic",
+      "showdownId": "milotic",
+      "showdownName": "Milotic"
+    },
+    {
+      "officialId": "0351-000",
+      "eligible": 1,
+      "officialName": "Castform",
+      "showdownId": "castform",
+      "showdownName": "Castform"
+    },
+    {
+      "officialId": "0354-000",
+      "eligible": 1,
+      "officialName": "Banette",
+      "showdownId": "banette",
+      "showdownName": "Banette"
+    },
+    {
+      "officialId": "0358-000",
+      "eligible": 1,
+      "officialName": "Chimecho",
+      "showdownId": "chimecho",
+      "showdownName": "Chimecho"
+    },
+    {
+      "officialId": "0359-000",
+      "eligible": 1,
+      "officialName": "Absol",
+      "showdownId": "absol",
+      "showdownName": "Absol"
+    },
+    {
+      "officialId": "0362-000",
+      "eligible": 1,
+      "officialName": "Glalie",
+      "showdownId": "glalie",
+      "showdownName": "Glalie"
+    },
+    {
+      "officialId": "0373-000",
+      "eligible": 1,
+      "officialName": "Salamence",
+      "showdownId": "salamence",
+      "showdownName": "Salamence"
+    },
+    {
+      "officialId": "0376-000",
+      "eligible": 1,
+      "officialName": "Metagross",
+      "showdownId": "metagross",
+      "showdownName": "Metagross"
+    },
+    {
+      "officialId": "0389-000",
+      "eligible": 1,
+      "officialName": "Torterra",
+      "showdownId": "torterra",
+      "showdownName": "Torterra"
+    },
+    {
+      "officialId": "0392-000",
+      "eligible": 1,
+      "officialName": "Infernape",
+      "showdownId": "infernape",
+      "showdownName": "Infernape"
+    },
+    {
+      "officialId": "0395-000",
+      "eligible": 1,
+      "officialName": "Empoleon",
+      "showdownId": "empoleon",
+      "showdownName": "Empoleon"
+    },
+    {
+      "officialId": "0398-000",
+      "eligible": 1,
+      "officialName": "Staraptor",
+      "showdownId": "staraptor",
+      "showdownName": "Staraptor"
+    },
+    {
+      "officialId": "0405-000",
+      "eligible": 1,
+      "officialName": "Luxray",
+      "showdownId": "luxray",
+      "showdownName": "Luxray"
+    },
+    {
+      "officialId": "0407-000",
+      "eligible": 1,
+      "officialName": "Roserade",
+      "showdownId": "roserade",
+      "showdownName": "Roserade"
+    },
+    {
+      "officialId": "0409-000",
+      "eligible": 1,
+      "officialName": "Rampardos",
+      "showdownId": "rampardos",
+      "showdownName": "Rampardos"
+    },
+    {
+      "officialId": "0411-000",
+      "eligible": 1,
+      "officialName": "Bastiodon",
+      "showdownId": "bastiodon",
+      "showdownName": "Bastiodon"
+    },
+    {
+      "officialId": "0428-000",
+      "eligible": 1,
+      "officialName": "Lopunny",
+      "showdownId": "lopunny",
+      "showdownName": "Lopunny"
+    },
+    {
+      "officialId": "0442-000",
+      "eligible": 1,
+      "officialName": "Spiritomb",
+      "showdownId": "spiritomb",
+      "showdownName": "Spiritomb"
+    },
+    {
+      "officialId": "0445-000",
+      "eligible": 1,
+      "officialName": "Garchomp",
+      "showdownId": "garchomp",
+      "showdownName": "Garchomp"
+    },
+    {
+      "officialId": "0448-000",
+      "eligible": 1,
+      "officialName": "Lucario",
+      "showdownId": "lucario",
+      "showdownName": "Lucario"
+    },
+    {
+      "officialId": "0450-000",
+      "eligible": 1,
+      "officialName": "Hippowdon",
+      "showdownId": "hippowdon",
+      "showdownName": "Hippowdon"
+    },
+    {
+      "officialId": "0454-000",
+      "eligible": 1,
+      "officialName": "Toxicroak",
+      "showdownId": "toxicroak",
+      "showdownName": "Toxicroak"
+    },
+    {
+      "officialId": "0460-000",
+      "eligible": 1,
+      "officialName": "Abomasnow",
+      "showdownId": "abomasnow",
+      "showdownName": "Abomasnow"
+    },
+    {
+      "officialId": "0461-000",
+      "eligible": 1,
+      "officialName": "Weavile",
+      "showdownId": "weavile",
+      "showdownName": "Weavile"
+    },
+    {
+      "officialId": "0464-000",
+      "eligible": 1,
+      "officialName": "Rhyperior",
+      "showdownId": "rhyperior",
+      "showdownName": "Rhyperior"
+    },
+    {
+      "officialId": "0470-000",
+      "eligible": 1,
+      "officialName": "Leafeon",
+      "showdownId": "leafeon",
+      "showdownName": "Leafeon"
+    },
+    {
+      "officialId": "0471-000",
+      "eligible": 1,
+      "officialName": "Glaceon",
+      "showdownId": "glaceon",
+      "showdownName": "Glaceon"
+    },
+    {
+      "officialId": "0472-000",
+      "eligible": 1,
+      "officialName": "Gliscor",
+      "showdownId": "gliscor",
+      "showdownName": "Gliscor"
+    },
+    {
+      "officialId": "0473-000",
+      "eligible": 1,
+      "officialName": "Mamoswine",
+      "showdownId": "mamoswine",
+      "showdownName": "Mamoswine"
+    },
+    {
+      "officialId": "0475-000",
+      "eligible": 1,
+      "officialName": "Gallade",
+      "showdownId": "gallade",
+      "showdownName": "Gallade"
+    },
+    {
+      "officialId": "0478-000",
+      "eligible": 1,
+      "officialName": "Froslass",
+      "showdownId": "froslass",
+      "showdownName": "Froslass"
+    },
+    {
+      "officialId": "0479-000",
+      "eligible": 1,
+      "officialName": "Rotom (Rotom)",
+      "showdownId": "rotom",
+      "showdownName": "Rotom"
+    },
+    {
+      "officialId": "0479-001",
+      "eligible": 1,
+      "officialName": "Rotom (Heat Rotom)",
+      "showdownId": "rotomheat",
+      "showdownName": "Rotom-Heat"
+    },
+    {
+      "officialId": "0479-002",
+      "eligible": 1,
+      "officialName": "Rotom (Wash Rotom)",
+      "showdownId": "rotomwash",
+      "showdownName": "Rotom-Wash"
+    },
+    {
+      "officialId": "0479-003",
+      "eligible": 1,
+      "officialName": "Rotom (Frost Rotom)",
+      "showdownId": "rotomfrost",
+      "showdownName": "Rotom-Frost"
+    },
+    {
+      "officialId": "0479-004",
+      "eligible": 1,
+      "officialName": "Rotom (Fan Rotom)",
+      "showdownId": "rotomfan",
+      "showdownName": "Rotom-Fan"
+    },
+    {
+      "officialId": "0479-005",
+      "eligible": 1,
+      "officialName": "Rotom (Mow Rotom)",
+      "showdownId": "rotommow",
+      "showdownName": "Rotom-Mow"
+    },
+    {
+      "officialId": "0497-000",
+      "eligible": 1,
+      "officialName": "Serperior",
+      "showdownId": "serperior",
+      "showdownName": "Serperior"
+    },
+    {
+      "officialId": "0500-000",
+      "eligible": 1,
+      "officialName": "Emboar",
+      "showdownId": "emboar",
+      "showdownName": "Emboar"
+    },
+    {
+      "officialId": "0503-000",
+      "eligible": 1,
+      "officialName": "Samurott",
+      "showdownId": "samurott",
+      "showdownName": "Samurott"
+    },
+    {
+      "officialId": "0503-001",
+      "eligible": 1,
+      "officialName": "Samurott (Hisuian Form)",
+      "showdownId": "samurotthisui",
+      "showdownName": "Samurott-Hisui"
+    },
+    {
+      "officialId": "0505-000",
+      "eligible": 1,
+      "officialName": "Watchog",
+      "showdownId": "watchog",
+      "showdownName": "Watchog"
+    },
+    {
+      "officialId": "0510-000",
+      "eligible": 1,
+      "officialName": "Liepard",
+      "showdownId": "liepard",
+      "showdownName": "Liepard"
+    },
+    {
+      "officialId": "0512-000",
+      "eligible": 1,
+      "officialName": "Simisage",
+      "showdownId": "simisage",
+      "showdownName": "Simisage"
+    },
+    {
+      "officialId": "0514-000",
+      "eligible": 1,
+      "officialName": "Simisear",
+      "showdownId": "simisear",
+      "showdownName": "Simisear"
+    },
+    {
+      "officialId": "0516-000",
+      "eligible": 1,
+      "officialName": "Simipour",
+      "showdownId": "simipour",
+      "showdownName": "Simipour"
+    },
+    {
+      "officialId": "0518-000",
+      "eligible": 1,
+      "officialName": "Musharna",
+      "showdownId": "musharna",
+      "showdownName": "Musharna"
+    },
+    {
+      "officialId": "0530-000",
+      "eligible": 1,
+      "officialName": "Excadrill",
+      "showdownId": "excadrill",
+      "showdownName": "Excadrill"
+    },
+    {
+      "officialId": "0531-000",
+      "eligible": 1,
+      "officialName": "Audino",
+      "showdownId": "audino",
+      "showdownName": "Audino"
+    },
+    {
+      "officialId": "0534-000",
+      "eligible": 1,
+      "officialName": "Conkeldurr",
+      "showdownId": "conkeldurr",
+      "showdownName": "Conkeldurr"
+    },
+    {
+      "officialId": "0545-000",
+      "eligible": 1,
+      "officialName": "Scolipede",
+      "showdownId": "scolipede",
+      "showdownName": "Scolipede"
+    },
+    {
+      "officialId": "0547-000",
+      "eligible": 1,
+      "officialName": "Whimsicott",
+      "showdownId": "whimsicott",
+      "showdownName": "Whimsicott"
+    },
+    {
+      "officialId": "0553-000",
+      "eligible": 1,
+      "officialName": "Krookodile",
+      "showdownId": "krookodile",
+      "showdownName": "Krookodile"
+    },
+    {
+      "officialId": "0560-000",
+      "eligible": 1,
+      "officialName": "Scrafty",
+      "showdownId": "scrafty",
+      "showdownName": "Scrafty"
+    },
+    {
+      "officialId": "0563-000",
+      "eligible": 1,
+      "officialName": "Cofagrigus",
+      "showdownId": "cofagrigus",
+      "showdownName": "Cofagrigus"
+    },
+    {
+      "officialId": "0569-000",
+      "eligible": 1,
+      "officialName": "Garbodor",
+      "showdownId": "garbodor",
+      "showdownName": "Garbodor"
+    },
+    {
+      "officialId": "0571-000",
+      "eligible": 1,
+      "officialName": "Zoroark",
+      "showdownId": "zoroark",
+      "showdownName": "Zoroark"
+    },
+    {
+      "officialId": "0571-001",
+      "eligible": 1,
+      "officialName": "Zoroark (Hisuian Form)",
+      "showdownId": "zoroarkhisui",
+      "showdownName": "Zoroark-Hisui"
+    },
+    {
+      "officialId": "0579-000",
+      "eligible": 1,
+      "officialName": "Reuniclus",
+      "showdownId": "reuniclus",
+      "showdownName": "Reuniclus"
+    },
+    {
+      "officialId": "0584-000",
+      "eligible": 1,
+      "officialName": "Vanilluxe",
+      "showdownId": "vanilluxe",
+      "showdownName": "Vanilluxe"
+    },
+    {
+      "officialId": "0587-000",
+      "eligible": 1,
+      "officialName": "Emolga",
+      "showdownId": "emolga",
+      "showdownName": "Emolga"
+    },
+    {
+      "officialId": "0604-000",
+      "eligible": 1,
+      "officialName": "Eelektross",
+      "showdownId": "eelektross",
+      "showdownName": "Eelektross"
+    },
+    {
+      "officialId": "0609-000",
+      "eligible": 1,
+      "officialName": "Chandelure",
+      "showdownId": "chandelure",
+      "showdownName": "Chandelure"
+    },
+    {
+      "officialId": "0614-000",
+      "eligible": 1,
+      "officialName": "Beartic",
+      "showdownId": "beartic",
+      "showdownName": "Beartic"
+    },
+    {
+      "officialId": "0618-000",
+      "eligible": 1,
+      "officialName": "Stunfisk",
+      "showdownId": "stunfisk",
+      "showdownName": "Stunfisk"
+    },
+    {
+      "officialId": "0618-001",
+      "eligible": 1,
+      "officialName": "Stunfisk (Galarian Form)",
+      "showdownId": "stunfiskgalar",
+      "showdownName": "Stunfisk-Galar"
+    },
+    {
+      "officialId": "0623-000",
+      "eligible": 1,
+      "officialName": "Golurk",
+      "showdownId": "golurk",
+      "showdownName": "Golurk"
+    },
+    {
+      "officialId": "0635-000",
+      "eligible": 1,
+      "officialName": "Hydreigon",
+      "showdownId": "hydreigon",
+      "showdownName": "Hydreigon"
+    },
+    {
+      "officialId": "0637-000",
+      "eligible": 1,
+      "officialName": "Volcarona",
+      "showdownId": "volcarona",
+      "showdownName": "Volcarona"
+    },
+    {
+      "officialId": "0652-000",
+      "eligible": 1,
+      "officialName": "Chesnaught",
+      "showdownId": "chesnaught",
+      "showdownName": "Chesnaught"
+    },
+    {
+      "officialId": "0655-000",
+      "eligible": 1,
+      "officialName": "Delphox",
+      "showdownId": "delphox",
+      "showdownName": "Delphox"
+    },
+    {
+      "officialId": "0658-000",
+      "eligible": 1,
+      "officialName": "Greninja",
+      "showdownId": "greninja",
+      "showdownName": "Greninja"
+    },
+    {
+      "officialId": "0660-000",
+      "eligible": 1,
+      "officialName": "Diggersby",
+      "showdownId": "diggersby",
+      "showdownName": "Diggersby"
+    },
+    {
+      "officialId": "0663-000",
+      "eligible": 1,
+      "officialName": "Talonflame",
+      "showdownId": "talonflame",
+      "showdownName": "Talonflame"
+    },
+    {
+      "officialId": "0666-018",
+      "eligible": 1,
+      "officialName": "Vivillon",
+      "showdownId": "vivillon",
+      "showdownName": "Vivillon",
+      "mappingNote": "Official display name normalized to the standard calculator species; original official form ID preserved."
+    },
+    {
+      "officialId": "0668-000",
+      "eligible": 1,
+      "officialName": "Pyroar",
+      "showdownId": "pyroar",
+      "showdownName": "Pyroar"
+    },
+    {
+      "officialId": "0670-005",
+      "eligible": 1,
+      "officialName": "Floette",
+      "showdownId": "floetteeternal",
+      "showdownName": "Floette-Eternal"
+    },
+    {
+      "officialId": "0671-000",
+      "eligible": 1,
+      "officialName": "Florges",
+      "showdownId": "florges",
+      "showdownName": "Florges"
+    },
+    {
+      "officialId": "0673-000",
+      "eligible": 1,
+      "officialName": "Gogoat",
+      "showdownId": "gogoat",
+      "showdownName": "Gogoat"
+    },
+    {
+      "officialId": "0675-000",
+      "eligible": 1,
+      "officialName": "Pangoro",
+      "showdownId": "pangoro",
+      "showdownName": "Pangoro"
+    },
+    {
+      "officialId": "0676-000",
+      "eligible": 1,
+      "officialName": "Furfrou",
+      "showdownId": "furfrou",
+      "showdownName": "Furfrou"
+    },
+    {
+      "officialId": "0678-000",
+      "eligible": 1,
+      "officialName": "Meowstic (Male)",
+      "showdownId": "meowstic",
+      "showdownName": "Meowstic"
+    },
+    {
+      "officialId": "0678-001",
+      "eligible": 1,
+      "officialName": "Meowstic (Female)",
+      "showdownId": "meowsticf",
+      "showdownName": "Meowstic-F"
+    },
+    {
+      "officialId": "0681-000",
+      "eligible": 1,
+      "officialName": "Aegislash",
+      "showdownId": "aegislash",
+      "showdownName": "Aegislash"
+    },
+    {
+      "officialId": "0683-000",
+      "eligible": 1,
+      "officialName": "Aromatisse",
+      "showdownId": "aromatisse",
+      "showdownName": "Aromatisse"
+    },
+    {
+      "officialId": "0685-000",
+      "eligible": 1,
+      "officialName": "Slurpuff",
+      "showdownId": "slurpuff",
+      "showdownName": "Slurpuff"
+    },
+    {
+      "officialId": "0687-000",
+      "eligible": 1,
+      "officialName": "Malamar",
+      "showdownId": "malamar",
+      "showdownName": "Malamar"
+    },
+    {
+      "officialId": "0689-000",
+      "eligible": 1,
+      "officialName": "Barbaracle",
+      "showdownId": "barbaracle",
+      "showdownName": "Barbaracle"
+    },
+    {
+      "officialId": "0691-000",
+      "eligible": 1,
+      "officialName": "Dragalge",
+      "showdownId": "dragalge",
+      "showdownName": "Dragalge"
+    },
+    {
+      "officialId": "0693-000",
+      "eligible": 1,
+      "officialName": "Clawitzer",
+      "showdownId": "clawitzer",
+      "showdownName": "Clawitzer"
+    },
+    {
+      "officialId": "0695-000",
+      "eligible": 1,
+      "officialName": "Heliolisk",
+      "showdownId": "heliolisk",
+      "showdownName": "Heliolisk"
+    },
+    {
+      "officialId": "0697-000",
+      "eligible": 1,
+      "officialName": "Tyrantrum",
+      "showdownId": "tyrantrum",
+      "showdownName": "Tyrantrum"
+    },
+    {
+      "officialId": "0699-000",
+      "eligible": 1,
+      "officialName": "Aurorus",
+      "showdownId": "aurorus",
+      "showdownName": "Aurorus"
+    },
+    {
+      "officialId": "0700-000",
+      "eligible": 1,
+      "officialName": "Sylveon",
+      "showdownId": "sylveon",
+      "showdownName": "Sylveon"
+    },
+    {
+      "officialId": "0701-000",
+      "eligible": 1,
+      "officialName": "Hawlucha",
+      "showdownId": "hawlucha",
+      "showdownName": "Hawlucha"
+    },
+    {
+      "officialId": "0702-000",
+      "eligible": 1,
+      "officialName": "Dedenne",
+      "showdownId": "dedenne",
+      "showdownName": "Dedenne"
+    },
+    {
+      "officialId": "0706-000",
+      "eligible": 1,
+      "officialName": "Goodra",
+      "showdownId": "goodra",
+      "showdownName": "Goodra"
+    },
+    {
+      "officialId": "0706-001",
+      "eligible": 1,
+      "officialName": "Goodra (Hisuian Form)",
+      "showdownId": "goodrahisui",
+      "showdownName": "Goodra-Hisui"
+    },
+    {
+      "officialId": "0707-000",
+      "eligible": 1,
+      "officialName": "Klefki",
+      "showdownId": "klefki",
+      "showdownName": "Klefki"
+    },
+    {
+      "officialId": "0709-000",
+      "eligible": 1,
+      "officialName": "Trevenant",
+      "showdownId": "trevenant",
+      "showdownName": "Trevenant"
+    },
+    {
+      "officialId": "0711-000",
+      "eligible": 1,
+      "officialName": "Gourgeist (Medium Variety)",
+      "showdownId": "gourgeist",
+      "showdownName": "Gourgeist"
+    },
+    {
+      "officialId": "0711-001",
+      "eligible": 1,
+      "officialName": "Gourgeist (Small Variety)",
+      "showdownId": "gourgeistsmall",
+      "showdownName": "Gourgeist-Small"
+    },
+    {
+      "officialId": "0711-002",
+      "eligible": 1,
+      "officialName": "Gourgeist (Large Variety)",
+      "showdownId": "gourgeistlarge",
+      "showdownName": "Gourgeist-Large"
+    },
+    {
+      "officialId": "0711-003",
+      "eligible": 1,
+      "officialName": "Gourgeist (Jumbo Variety)",
+      "showdownId": "gourgeistsuper",
+      "showdownName": "Gourgeist-Super"
+    },
+    {
+      "officialId": "0713-000",
+      "eligible": 1,
+      "officialName": "Avalugg",
+      "showdownId": "avalugg",
+      "showdownName": "Avalugg"
+    },
+    {
+      "officialId": "0713-001",
+      "eligible": 1,
+      "officialName": "Avalugg (Hisuian Form)",
+      "showdownId": "avalugghisui",
+      "showdownName": "Avalugg-Hisui"
+    },
+    {
+      "officialId": "0715-000",
+      "eligible": 1,
+      "officialName": "Noivern",
+      "showdownId": "noivern",
+      "showdownName": "Noivern"
+    },
+    {
+      "officialId": "0724-000",
+      "eligible": 1,
+      "officialName": "Decidueye",
+      "showdownId": "decidueye",
+      "showdownName": "Decidueye"
+    },
+    {
+      "officialId": "0724-001",
+      "eligible": 1,
+      "officialName": "Decidueye (Hisuian Form)",
+      "showdownId": "decidueyehisui",
+      "showdownName": "Decidueye-Hisui"
+    },
+    {
+      "officialId": "0727-000",
+      "eligible": 1,
+      "officialName": "Incineroar",
+      "showdownId": "incineroar",
+      "showdownName": "Incineroar"
+    },
+    {
+      "officialId": "0730-000",
+      "eligible": 1,
+      "officialName": "Primarina",
+      "showdownId": "primarina",
+      "showdownName": "Primarina"
+    },
+    {
+      "officialId": "0733-000",
+      "eligible": 1,
+      "officialName": "Toucannon",
+      "showdownId": "toucannon",
+      "showdownName": "Toucannon"
+    },
+    {
+      "officialId": "0740-000",
+      "eligible": 1,
+      "officialName": "Crabominable",
+      "showdownId": "crabominable",
+      "showdownName": "Crabominable"
+    },
+    {
+      "officialId": "0745-000",
+      "eligible": 1,
+      "officialName": "Lycanroc (Midday Form)",
+      "showdownId": "lycanroc",
+      "showdownName": "Lycanroc"
+    },
+    {
+      "officialId": "0745-001",
+      "eligible": 1,
+      "officialName": "Lycanroc (Midnight Form)",
+      "showdownId": "lycanrocmidnight",
+      "showdownName": "Lycanroc-Midnight"
+    },
+    {
+      "officialId": "0745-002",
+      "eligible": 1,
+      "officialName": "Lycanroc (Dusk Form)",
+      "showdownId": "lycanrocdusk",
+      "showdownName": "Lycanroc-Dusk"
+    },
+    {
+      "officialId": "0748-000",
+      "eligible": 1,
+      "officialName": "Toxapex",
+      "showdownId": "toxapex",
+      "showdownName": "Toxapex"
+    },
+    {
+      "officialId": "0750-000",
+      "eligible": 1,
+      "officialName": "Mudsdale",
+      "showdownId": "mudsdale",
+      "showdownName": "Mudsdale"
+    },
+    {
+      "officialId": "0752-000",
+      "eligible": 1,
+      "officialName": "Araquanid",
+      "showdownId": "araquanid",
+      "showdownName": "Araquanid"
+    },
+    {
+      "officialId": "0758-000",
+      "eligible": 1,
+      "officialName": "Salazzle",
+      "showdownId": "salazzle",
+      "showdownName": "Salazzle"
+    },
+    {
+      "officialId": "0763-000",
+      "eligible": 1,
+      "officialName": "Tsareena",
+      "showdownId": "tsareena",
+      "showdownName": "Tsareena"
+    },
+    {
+      "officialId": "0765-000",
+      "eligible": 1,
+      "officialName": "Oranguru",
+      "showdownId": "oranguru",
+      "showdownName": "Oranguru"
+    },
+    {
+      "officialId": "0766-000",
+      "eligible": 1,
+      "officialName": "Passimian",
+      "showdownId": "passimian",
+      "showdownName": "Passimian"
+    },
+    {
+      "officialId": "0768-000",
+      "eligible": 1,
+      "officialName": "Golisopod",
+      "showdownId": "golisopod",
+      "showdownName": "Golisopod"
+    },
+    {
+      "officialId": "0778-000",
+      "eligible": 1,
+      "officialName": "Mimikyu",
+      "showdownId": "mimikyu",
+      "showdownName": "Mimikyu"
+    },
+    {
+      "officialId": "0780-000",
+      "eligible": 1,
+      "officialName": "Drampa",
+      "showdownId": "drampa",
+      "showdownName": "Drampa"
+    },
+    {
+      "officialId": "0784-000",
+      "eligible": 1,
+      "officialName": "Kommo-o",
+      "showdownId": "kommoo",
+      "showdownName": "Kommo-o"
+    },
+    {
+      "officialId": "0812-000",
+      "eligible": 1,
+      "officialName": "Rillaboom",
+      "showdownId": "rillaboom",
+      "showdownName": "Rillaboom"
+    },
+    {
+      "officialId": "0815-000",
+      "eligible": 1,
+      "officialName": "Cinderace",
+      "showdownId": "cinderace",
+      "showdownName": "Cinderace"
+    },
+    {
+      "officialId": "0818-000",
+      "eligible": 1,
+      "officialName": "Inteleon",
+      "showdownId": "inteleon",
+      "showdownName": "Inteleon"
+    },
+    {
+      "officialId": "0823-000",
+      "eligible": 1,
+      "officialName": "Corviknight",
+      "showdownId": "corviknight",
+      "showdownName": "Corviknight"
+    },
+    {
+      "officialId": "0828-000",
+      "eligible": 1,
+      "officialName": "Thievul",
+      "showdownId": "thievul",
+      "showdownName": "Thievul"
+    },
+    {
+      "officialId": "0841-000",
+      "eligible": 1,
+      "officialName": "Flapple",
+      "showdownId": "flapple",
+      "showdownName": "Flapple"
+    },
+    {
+      "officialId": "0842-000",
+      "eligible": 1,
+      "officialName": "Appletun",
+      "showdownId": "appletun",
+      "showdownName": "Appletun"
+    },
+    {
+      "officialId": "0844-000",
+      "eligible": 1,
+      "officialName": "Sandaconda",
+      "showdownId": "sandaconda",
+      "showdownName": "Sandaconda"
+    },
+    {
+      "officialId": "0849-000",
+      "eligible": 1,
+      "officialName": "Toxtricity (Amped Form)",
+      "showdownId": "toxtricity",
+      "showdownName": "Toxtricity"
+    },
+    {
+      "officialId": "0849-001",
+      "eligible": 1,
+      "officialName": "Toxtricity (Low Key Form)",
+      "showdownId": "toxtricitylowkey",
+      "showdownName": "Toxtricity-Low-Key"
+    },
+    {
+      "officialId": "0853-000",
+      "eligible": 1,
+      "officialName": "Grapploct",
+      "showdownId": "grapploct",
+      "showdownName": "Grapploct"
+    },
+    {
+      "officialId": "0855-000",
+      "eligible": 1,
+      "officialName": "Polteageist",
+      "showdownId": "polteageist",
+      "showdownName": "Polteageist"
+    },
+    {
+      "officialId": "0858-000",
+      "eligible": 1,
+      "officialName": "Hatterene",
+      "showdownId": "hatterene",
+      "showdownName": "Hatterene"
+    },
+    {
+      "officialId": "0861-000",
+      "eligible": 1,
+      "officialName": "Grimmsnarl",
+      "showdownId": "grimmsnarl",
+      "showdownName": "Grimmsnarl"
+    },
+    {
+      "officialId": "0863-000",
+      "eligible": 1,
+      "officialName": "Perrserker",
+      "showdownId": "perrserker",
+      "showdownName": "Perrserker"
+    },
+    {
+      "officialId": "0865-000",
+      "eligible": 1,
+      "officialName": "Sirfetch’d",
+      "showdownId": "sirfetchd",
+      "showdownName": "Sirfetch’d"
+    },
+    {
+      "officialId": "0866-000",
+      "eligible": 1,
+      "officialName": "Mr. Rime",
+      "showdownId": "mrrime",
+      "showdownName": "Mr. Rime"
+    },
+    {
+      "officialId": "0867-000",
+      "eligible": 1,
+      "officialName": "Runerigus",
+      "showdownId": "runerigus",
+      "showdownName": "Runerigus"
+    },
+    {
+      "officialId": "0869-000",
+      "eligible": 1,
+      "officialName": "Alcremie",
+      "showdownId": "alcremie",
+      "showdownName": "Alcremie"
+    },
+    {
+      "officialId": "0870-000",
+      "eligible": 1,
+      "officialName": "Falinks",
+      "showdownId": "falinks",
+      "showdownName": "Falinks"
+    },
+    {
+      "officialId": "0871-000",
+      "eligible": 1,
+      "officialName": "Pincurchin",
+      "showdownId": "pincurchin",
+      "showdownName": "Pincurchin"
+    },
+    {
+      "officialId": "0876-000",
+      "eligible": 1,
+      "officialName": "Indeedee (Male)",
+      "showdownId": "indeedee",
+      "showdownName": "Indeedee"
+    },
+    {
+      "officialId": "0876-001",
+      "eligible": 1,
+      "officialName": "Indeedee (Female)",
+      "showdownId": "indeedeef",
+      "showdownName": "Indeedee-F"
+    },
+    {
+      "officialId": "0877-000",
+      "eligible": 1,
+      "officialName": "Morpeko",
+      "showdownId": "morpeko",
+      "showdownName": "Morpeko"
+    },
+    {
+      "officialId": "0887-000",
+      "eligible": 1,
+      "officialName": "Dragapult",
+      "showdownId": "dragapult",
+      "showdownName": "Dragapult"
+    },
+    {
+      "officialId": "0899-000",
+      "eligible": 1,
+      "officialName": "Wyrdeer",
+      "showdownId": "wyrdeer",
+      "showdownName": "Wyrdeer"
+    },
+    {
+      "officialId": "0900-000",
+      "eligible": 1,
+      "officialName": "Kleavor",
+      "showdownId": "kleavor",
+      "showdownName": "Kleavor"
+    },
+    {
+      "officialId": "0902-000",
+      "eligible": 1,
+      "officialName": "Basculegion (Male)",
+      "showdownId": "basculegion",
+      "showdownName": "Basculegion"
+    },
+    {
+      "officialId": "0902-001",
+      "eligible": 1,
+      "officialName": "Basculegion (Female)",
+      "showdownId": "basculegionf",
+      "showdownName": "Basculegion-F"
+    },
+    {
+      "officialId": "0903-000",
+      "eligible": 1,
+      "officialName": "Sneasler",
+      "showdownId": "sneasler",
+      "showdownName": "Sneasler"
+    },
+    {
+      "officialId": "0904-000",
+      "eligible": 1,
+      "officialName": "Overqwil",
+      "showdownId": "overqwil",
+      "showdownName": "Overqwil"
+    },
+    {
+      "officialId": "0908-000",
+      "eligible": 1,
+      "officialName": "Meowscarada",
+      "showdownId": "meowscarada",
+      "showdownName": "Meowscarada"
+    },
+    {
+      "officialId": "0911-000",
+      "eligible": 1,
+      "officialName": "Skeledirge",
+      "showdownId": "skeledirge",
+      "showdownName": "Skeledirge"
+    },
+    {
+      "officialId": "0914-000",
+      "eligible": 1,
+      "officialName": "Quaquaval",
+      "showdownId": "quaquaval",
+      "showdownName": "Quaquaval"
+    },
+    {
+      "officialId": "0923-000",
+      "eligible": 1,
+      "officialName": "Pawmot",
+      "showdownId": "pawmot",
+      "showdownName": "Pawmot"
+    },
+    {
+      "officialId": "0925-001",
+      "eligible": 1,
+      "officialName": "Maushold",
+      "showdownId": "maushold",
+      "showdownName": "Maushold",
+      "mappingNote": "Official display name normalized to the standard calculator species; original official form ID preserved."
+    },
+    {
+      "officialId": "0930-000",
+      "eligible": 1,
+      "officialName": "Arboliva",
+      "showdownId": "arboliva",
+      "showdownName": "Arboliva"
+    },
+    {
+      "officialId": "0931-000",
+      "eligible": 1,
+      "officialName": "Squawkabilly",
+      "showdownId": "squawkabilly",
+      "showdownName": "Squawkabilly"
+    },
+    {
+      "officialId": "0931-002",
+      "eligible": 1,
+      "officialName": "Squawkabilly",
+      "showdownId": "squawkabillyyellow",
+      "showdownName": "Squawkabilly-Yellow"
+    },
+    {
+      "officialId": "0934-000",
+      "eligible": 1,
+      "officialName": "Garganacl",
+      "showdownId": "garganacl",
+      "showdownName": "Garganacl"
+    },
+    {
+      "officialId": "0936-000",
+      "eligible": 1,
+      "officialName": "Armarouge",
+      "showdownId": "armarouge",
+      "showdownName": "Armarouge"
+    },
+    {
+      "officialId": "0937-000",
+      "eligible": 1,
+      "officialName": "Ceruledge",
+      "showdownId": "ceruledge",
+      "showdownName": "Ceruledge"
+    },
+    {
+      "officialId": "0939-000",
+      "eligible": 1,
+      "officialName": "Bellibolt",
+      "showdownId": "bellibolt",
+      "showdownName": "Bellibolt"
+    },
+    {
+      "officialId": "0943-000",
+      "eligible": 1,
+      "officialName": "Mabosstiff",
+      "showdownId": "mabosstiff",
+      "showdownName": "Mabosstiff"
+    },
+    {
+      "officialId": "0952-000",
+      "eligible": 1,
+      "officialName": "Scovillain",
+      "showdownId": "scovillain",
+      "showdownName": "Scovillain"
+    },
+    {
+      "officialId": "0956-000",
+      "eligible": 1,
+      "officialName": "Espathra",
+      "showdownId": "espathra",
+      "showdownName": "Espathra"
+    },
+    {
+      "officialId": "0959-000",
+      "eligible": 1,
+      "officialName": "Tinkaton",
+      "showdownId": "tinkaton",
+      "showdownName": "Tinkaton"
+    },
+    {
+      "officialId": "0964-000",
+      "eligible": 1,
+      "officialName": "Palafin",
+      "showdownId": "palafin",
+      "showdownName": "Palafin"
+    },
+    {
+      "officialId": "0968-000",
+      "eligible": 1,
+      "officialName": "Orthworm",
+      "showdownId": "orthworm",
+      "showdownName": "Orthworm"
+    },
+    {
+      "officialId": "0970-000",
+      "eligible": 1,
+      "officialName": "Glimmora",
+      "showdownId": "glimmora",
+      "showdownName": "Glimmora"
+    },
+    {
+      "officialId": "0972-000",
+      "eligible": 1,
+      "officialName": "Houndstone",
+      "showdownId": "houndstone",
+      "showdownName": "Houndstone"
+    },
+    {
+      "officialId": "0979-000",
+      "eligible": 1,
+      "officialName": "Annihilape",
+      "showdownId": "annihilape",
+      "showdownName": "Annihilape"
+    },
+    {
+      "officialId": "0981-000",
+      "eligible": 1,
+      "officialName": "Farigiraf",
+      "showdownId": "farigiraf",
+      "showdownName": "Farigiraf"
+    },
+    {
+      "officialId": "0983-000",
+      "eligible": 1,
+      "officialName": "Kingambit",
+      "showdownId": "kingambit",
+      "showdownName": "Kingambit"
+    },
+    {
+      "officialId": "0998-000",
+      "eligible": 1,
+      "officialName": "Baxcalibur",
+      "showdownId": "baxcalibur",
+      "showdownName": "Baxcalibur"
+    },
+    {
+      "officialId": "1000-000",
+      "eligible": 1,
+      "officialName": "Gholdengo",
+      "showdownId": "gholdengo",
+      "showdownName": "Gholdengo"
+    },
+    {
+      "officialId": "1013-000",
+      "eligible": 1,
+      "officialName": "Sinistcha",
+      "showdownId": "sinistcha",
+      "showdownName": "Sinistcha"
+    },
+    {
+      "officialId": "1018-000",
+      "eligible": 1,
+      "officialName": "Archaludon",
+      "showdownId": "archaludon",
+      "showdownName": "Archaludon"
+    },
+    {
+      "officialId": "1019-000",
+      "eligible": 1,
+      "officialName": "Hydrapple",
+      "showdownId": "hydrapple",
+      "showdownName": "Hydrapple"
+    }
+  ],
+  "mappingSources": [
+    "https://raw.githubusercontent.com/smogon/pokemon-showdown/f10d6798f2ba5af92e55892c8c7063ca7b53c18a/data/pokedex.ts"
+  ],
+  "note": "Official eligibility list has out-of-battle representatives only. Mega and other battle-only forms must be added from Showdown when their actual battleOnly/changesFrom parent is eligible and the form is not marked nonstandard. Generic cosmetic display names are normalized for calculator use; this is not proof that every cosmetic form is individually available."
+}

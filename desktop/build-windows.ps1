@@ -12,7 +12,9 @@ $archiveName = "electron-v$electronVersion-win32-x64.zip"
 $releaseUrl = "https://github.com/electron/electron/releases/download/v$electronVersion"
 $cacheRoot = Join-Path $projectRoot '.cache'
 $releaseRoot = Join-Path $projectRoot 'release'
-$outputPath = Join-Path $releaseRoot 'Kampfcheck-win32-x64'
+$buildPackage = Get-Content -LiteralPath (Join-Path $projectRoot 'package.json') -Raw | ConvertFrom-Json
+if ($buildPackage.version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid application version.' }
+$outputPath = Join-Path $releaseRoot ("Kampfcheck-" + $buildPackage.version + '-win32-x64')
 
 if (Test-Path -LiteralPath $outputPath) {
     throw "Build output already exists: $outputPath. Move it elsewhere or remove it yourself before building again. No existing files were changed."
