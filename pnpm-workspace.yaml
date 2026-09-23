@@ -1,0 +1,3 @@
+# esbuild ist ein bewusst gewähltes Build-Werkzeug für die Testpakete.
+allowBuilds:
+  esbuild: true

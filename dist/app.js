@@ -1,125 +1,1549 @@
-(async function(){
- 'use strict';
- const T=window.KampfTeam,M=window.KampfMeta,K=window.KampfCore,C=window.calc,G=K.G,STATS=K.STATS,app=document.getElementById('app');
- const L=window.KampfGerman,Q=window.KampfLegality;
- if(!L){app.innerHTML='<p class="empty-result">Die Kampfdaten konnten nicht geladen werden. Bitte lade die Seite erneut.</p>';return;}
- const names={hp:'KP',atk:'Ang.',def:'Vert.',spa:'Sp.-Ang.',spd:'Sp.-Vert.',spe:'Init.'};
- const natures=T.natures;
- const types={Normal:'Normal',Fire:'Feuer',Water:'Wasser',Electric:'Elektro',Grass:'Pflanze',Ice:'Eis',Fighting:'Kampf',Poison:'Gift',Ground:'Boden',Flying:'Flug',Psychic:'Psycho',Bug:'Käfer',Rock:'Gestein',Ghost:'Geist',Dragon:'Drache',Dark:'Unlicht',Steel:'Stahl',Fairy:'Fee','???':'–'};
- const statusList=[['','Gesund'],['par','Paralyse'],['brn','Verbrennung'],['psn','Vergiftung'],['tox','Schwere Vergiftung'],['slp','Schlaf'],['frz','Gefroren']];
- const weatherList=[['','Kein Wetter'],['Sun','Sonne'],['Rain','Regen'],['Sand','Sandsturm'],['Snow','Schnee']];
- const terrainList=[['','Kein Terrain'],['Electric','Elektrofeld'],['Grassy','Grasfeld'],['Misty','Nebelfeld'],['Psychic','Psychofeld']];
- const categories={Physical:'Physisch',Special:'Speziell',Status:'Status'};
- const species=[...G.species].filter(s=>Q.available(s.name)),moves=[...G.moves].filter(m=>m.name!==Q.EMPTY),items=[...G.items].filter(i=>Q.canItem(i.name)),abilities=[...G.abilities];
- const defaults={
- 'Garchomp':{nature:'Jolly',item:'Clear Amulet',ability:'Rough Skin',moves:['Dragon Claw','Earthquake','Rock Slide','Protect']},
- 'Incineroar':{nature:'Careful',item:'Sitrus Berry',ability:'Intimidate',moves:['Fake Out','Flare Blitz','Knock Off','Parting Shot'],spread:'bulk'},
- 'Rillaboom':{nature:'Adamant',item:'Assault Vest',ability:'Grassy Surge',moves:['Grassy Glide','Wood Hammer','Fake Out','U-turn']},
- 'Gardevoir':{nature:'Timid',item:'Gardevoirite',ability:'Trace',moves:['Moonblast','Psychic','Dazzling Gleam','Protect']},
- 'Rotom-Wash':{nature:'Modest',item:'Sitrus Berry',ability:'Levitate',moves:['Hydro Pump','Thunderbolt','Volt Switch','Will-O-Wisp']},
- 'Dragonite':{nature:'Adamant',item:'Lum Berry',ability:'Multiscale',moves:['Extreme Speed','Dragon Claw','Stomping Tantrum','Protect']},
- 'Salamence':{nature:'Jolly',item:'Life Orb',ability:'Intimidate',moves:['Dragon Claw','Double-Edge','Earthquake','Protect']},
- 'Gengar':{nature:'Timid',item:'Focus Sash',ability:'Cursed Body',moves:['Shadow Ball','Sludge Bomb','Icy Wind','Protect']},
- 'Primarina':{nature:'Modest',item:'Throat Spray',ability:'Liquid Voice',moves:['Hyper Voice','Moonblast','Hydro Pump','Protect']},
- 'Kingambit':{nature:'Adamant',item:'Black Glasses',ability:'Defiant',moves:['Kowtow Cleave','Sucker Punch','Iron Head','Protect']},
- 'Whimsicott':{nature:'Timid',item:'Focus Sash',ability:'Prankster',moves:['Moonblast','Tailwind','Encore','Protect']},
- 'Pelipper':{nature:'Modest',item:'Damp Rock',ability:'Drizzle',moves:['Hurricane','Weather Ball','Tailwind','Protect']}
- };
- const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const fmt=x=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:1}).format(x);
- function tr(kind,name){if(kind==='moves'&&name===Q.EMPTY)return 'Keine Attacke';if(!name)return 'Kein Item';if(kind==='species'&&name.includes('-Mega')){const base=name.split('-Mega')[0];return 'Mega-'+(L.species[base]||base)+name.split('-Mega')[1].replaceAll('-',' ');}if(kind==='species'&&!L.species[name]){const s=G.species.get(C.toID(name));if(s?.baseSpecies){const base=L.species[s.baseSpecies]||s.baseSpecies;const suffix=name.slice(s.baseSpecies.length).replace(/^-/, '');return suffix.startsWith('Mega')?'Mega-'+base+suffix.replace('Mega','').replaceAll('-',' '):base+' ('+suffix+')';}}return L[kind]?.[name]||name;}
- function makeSet(name){const s=G.species.get(C.toID(name));const d=defaults[name]||{};const special=s.baseStats.spa>s.baseStats.atk;const points=Object.fromEntries(STATS.map(k=>[k,0]));points.hp=d.spread==='bulk'?32:2;points[d.spread==='bulk'?'spd':special?'spa':'atk']=32;points[d.spread==='bulk'?'def':'spe']=d.spread==='bulk'?2:32;
- const suggestions=Q.moves(name).filter(m=>m.basePower>=60&&m.basePower<=100&&s.types.includes(m.type)&&m.category===(special?'Special':'Physical')).slice(0,3).map(m=>m.name);
- return Q.prepare({species:name,nature:d.nature||(special?'Timid':'Jolly'),item:T.megaItem(name)||(items.some(x=>x.name===d.item)?d.item:''),ability:d.ability||s.abilities?.[0]||'',abilityOn:false,points,boosts:{atk:0,def:0,spa:0,spd:0,spe:0},hp:0,status:'',moves:(d.moves||[...suggestions,'Protect'])});}
- const initialOwn=['Garchomp','Incineroar','Rillaboom','Gardevoir','Rotom-Wash','Dragonite'].map(makeSet);
- const initialFoe=['Salamence','Gengar','Primarina','Kingambit','Whimsicott','Pelipper'].map(makeSet);
- const state={view:'calc',libraryReturn:'calc',librarySide:'own',foeLibraryId:null,foeName:'Gegnerteam',panels:{speed:false,damage:false,preview:false},ownLibraryId:null,ownName:'Mein Team',builderLibraryId:null,builderName:'Mein Team',builderTab:'editor',builder:[],builderIndex:0,theme:'light',own:initialOwn,foe:initialFoe,ownIndex:0,foeIndex:0,ownMove:0,foeMove:0,tab:'foe',crit:false,hits:0,example:true,field:{gameType:'Doubles',weather:'',terrain:'',trickRoom:false,spread:true,own:{},foe:{}}};
- try{const prefs=JSON.parse(localStorage.getItem('kampfcheck-preferences-v1')||'{}');state.theme=prefs.theme==='dark'?'dark':'light';state.field.gameType=prefs.gameType==='Singles'?'Singles':'Doubles';for(const key of Object.keys(state.panels)){if(typeof prefs.panels?.[key]==='boolean')state.panels[key]=prefs.panels[key];}}catch{}
- let storageWorks=true;
- try{const saved=JSON.parse(localStorage.getItem('kampfcheck-team-v1')||'null');if(saved?.team?.length===6&&saved.team.every(s=>!K.validate(s)&&Array.isArray(s.moves)&&s.moves.length===4&&s.moves.every(m=>G.moves.get(C.toID(m))))){state.own=saved.team.map(s=>({...makeSet(s.species),...s,boosts:{atk:0,def:0,spa:0,spd:0,spe:0},hp:0,status:'',abilityOn:false}));state.example=!!saved.example;state.ownLibraryId=typeof saved.libraryId==='string'?saved.libraryId:null;state.ownName=typeof saved.name==='string'?saved.name.slice(0,60):'Mein Team';}}catch{storageWorks=false;}
- function save(){try{localStorage.setItem('kampfcheck-team-v1',JSON.stringify({version:1,team:state.own,example:state.example,libraryId:state.ownLibraryId,name:state.ownName}));storageWorks=true;return true;}catch{storageWorks=false;toast('Der Browser blockiert das Speichern. Exportiere dein Team als Sicherung.');return false;}}
- function savePreferences(){try{localStorage.setItem('kampfcheck-preferences-v1',JSON.stringify({theme:state.theme,gameType:state.field.gameType,panels:state.panels}));}catch{}}
- function applyTheme(){document.documentElement.dataset.theme=state.theme;const button=document.getElementById('theme-toggle');button.textContent=state.theme==='dark'?'☀ Hellmodus':'☾ Darkmode';button.setAttribute('aria-pressed',String(state.theme==='dark'));button.setAttribute('aria-label',state.theme==='dark'?'Hellmodus aktivieren':'Darkmode aktivieren');}
- function toast(s){const t=document.getElementById('toast');t.textContent=s;t.classList.add('visible');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('visible'),4000);}
- function opts(list,value){return list.map(([v,label])=>`<option value="${esc(v)}" ${v===value?'selected':''}>${esc(label)}</option>`).join('');}
- function select(label,field,value,list,side,extra=''){return `<label><span class="field-label">${esc(label)}</span><select data-side="${side}" data-field="${field}" ${extra}>${opts(list,value)}</select></label>`;}
- function spriteId(name){const direct=L.pokemonIds[name.toLowerCase().replaceAll(' ','-').replaceAll('.','')];if(direct)return direct;const sp=G.species.get(C.toID(name));return L.speciesIds[name]||L.speciesIds[sp?.baseSpecies]||L.speciesIds[name.split('-')[0]];}
- function sprite(name){const id=spriteId(name);return id?`<img class="sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${Number(id)}.png" alt="" loading="lazy" width="96" height="96">`:'<span class="sprite"></span>';}
- function teamPanel(side){return `<section class="team-panel ${side==='foe'?'enemy':''}" aria-label="${side==='own'?'Dein Team':'Gegnerteam'}"><div class="team-heading"><span class="eyebrow"><i class="side-marker"></i>${side==='own'?'Dein Team':'Gegnerische Vorschau'}</span><small>${side==='own'?(state.example?'Beispielteam · frei anpassbar':V.badge('own')):V.badge('foe')}</small></div><div class="roster">${state[side].map((s,i)=>`<button class="roster-slot ${state[side+'Index']===i?'selected':''}" data-action="slot" data-side="${side}" data-index="${i}" aria-pressed="${state[side+'Index']===i}" aria-label="${esc(tr('species',s.species))} ${side==='own'?'in deinem Team':'im Gegnerteam'} auswählen"><span class="slot-number">${i+1}</span>${sprite(s.species)}<span class="slot-name">${esc(tr('species',s.species))}</span><span class="roster-item" title="${esc(s.item?tr('items',s.item):'Kein Item')}">${B.itemIcon(s.item)}</span></button>`).join('')}</div>${side==='foe'?V.foeControls():''}</section>`;}
- const checks=[['isTailwind','Rückenwind'],['isReflect','Reflektor'],['isLightScreen','Lichtschild'],['isAuroraVeil','Auroraschleier'],['isHelpingHand','Rechte Hand'],['isFriendGuard','Freundeshut'],['isProtected','Schutzschild']];
+/**
+ * Einstiegspunkt der Oberfläche: verbindet Zustand, Ansichten und Benutzeraktionen.
+ * Berechnungen liegen in core.js, Champions-Regeln in legality.js und
+ * benannte Team-Snapshots in team-library.js. Die Module werden durch index.html geladen.
+ */
+(async function () {
+  "use strict";
+  const html = window.KampfView.html;
+  const TeamTools = window.KampfTeam,
+    MetaData = window.KampfMeta,
+    BattleCore = window.KampfCore,
+    Calculator = window.calc,
+    ChampionsDex = BattleCore.G,
+    STATS = BattleCore.STATS,
+    app = document.getElementById("app");
+  const GermanNames = window.KampfGerman,
+    ChampionsRules = window.KampfLegality;
+  if (!GermanNames) {
+    app.innerHTML =
+      '<p class="empty-result">Die Kampfdaten konnten nicht geladen werden. Bitte lade die Seite erneut.</p>';
+    return;
+  }
+  const names = {
+    hp: "KP",
+    atk: "Ang.",
+    def: "Vert.",
+    spa: "Sp.-Ang.",
+    spd: "Sp.-Vert.",
+    spe: "Init.",
+  };
+  const natures = TeamTools.natures;
+  const types = {
+    Normal: "Normal",
+    Fire: "Feuer",
+    Water: "Wasser",
+    Electric: "Elektro",
+    Grass: "Pflanze",
+    Ice: "Eis",
+    Fighting: "Kampf",
+    Poison: "Gift",
+    Ground: "Boden",
+    Flying: "Flug",
+    Psychic: "Psycho",
+    Bug: "Käfer",
+    Rock: "Gestein",
+    Ghost: "Geist",
+    Dragon: "Drache",
+    Dark: "Unlicht",
+    Steel: "Stahl",
+    Fairy: "Fee",
+    "???": "–",
+  };
+  const statusList = [
+    ["", "Gesund"],
+    ["par", "Paralyse"],
+    ["brn", "Verbrennung"],
+    ["psn", "Vergiftung"],
+    ["tox", "Schwere Vergiftung"],
+    ["slp", "Schlaf"],
+    ["frz", "Gefroren"],
+  ];
+  const weatherList = [
+    ["", "Kein Wetter"],
+    ["Sun", "Sonne"],
+    ["Rain", "Regen"],
+    ["Sand", "Sandsturm"],
+    ["Snow", "Schnee"],
+  ];
+  const terrainList = [
+    ["", "Kein Terrain"],
+    ["Electric", "Elektrofeld"],
+    ["Grassy", "Grasfeld"],
+    ["Misty", "Nebelfeld"],
+    ["Psychic", "Psychofeld"],
+  ];
+  const categories = {
+    Physical: "Physisch",
+    Special: "Speziell",
+    Status: "Status",
+  };
+  const species = [...ChampionsDex.species].filter((s) => ChampionsRules.available(s.name)),
+    moves = [...ChampionsDex.moves].filter((m) => m.name !== ChampionsRules.EMPTY),
+    items = [...ChampionsDex.items].filter((i) => ChampionsRules.canItem(i.name)),
+    abilities = [...ChampionsDex.abilities];
+  const defaults = {
+    Garchomp: {
+      nature: "Jolly",
+      item: "Clear Amulet",
+      ability: "Rough Skin",
+      moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Protect"],
+    },
+    Incineroar: {
+      nature: "Careful",
+      item: "Sitrus Berry",
+      ability: "Intimidate",
+      moves: ["Fake Out", "Flare Blitz", "Knock Off", "Parting Shot"],
+      spread: "bulk",
+    },
+    Rillaboom: {
+      nature: "Adamant",
+      item: "Assault Vest",
+      ability: "Grassy Surge",
+      moves: ["Grassy Glide", "Wood Hammer", "Fake Out", "U-turn"],
+    },
+    Gardevoir: {
+      nature: "Timid",
+      item: "Gardevoirite",
+      ability: "Trace",
+      moves: ["Moonblast", "Psychic", "Dazzling Gleam", "Protect"],
+    },
+    "Rotom-Wash": {
+      nature: "Modest",
+      item: "Sitrus Berry",
+      ability: "Levitate",
+      moves: ["Hydro Pump", "Thunderbolt", "Volt Switch", "Will-O-Wisp"],
+    },
+    Dragonite: {
+      nature: "Adamant",
+      item: "Lum Berry",
+      ability: "Multiscale",
+      moves: ["Extreme Speed", "Dragon Claw", "Stomping Tantrum", "Protect"],
+    },
+    Salamence: {
+      nature: "Jolly",
+      item: "Life Orb",
+      ability: "Intimidate",
+      moves: ["Dragon Claw", "Double-Edge", "Earthquake", "Protect"],
+    },
+    Gengar: {
+      nature: "Timid",
+      item: "Focus Sash",
+      ability: "Cursed Body",
+      moves: ["Shadow Ball", "Sludge Bomb", "Icy Wind", "Protect"],
+    },
+    Primarina: {
+      nature: "Modest",
+      item: "Throat Spray",
+      ability: "Liquid Voice",
+      moves: ["Hyper Voice", "Moonblast", "Hydro Pump", "Protect"],
+    },
+    Kingambit: {
+      nature: "Adamant",
+      item: "Black Glasses",
+      ability: "Defiant",
+      moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"],
+    },
+    Whimsicott: {
+      nature: "Timid",
+      item: "Focus Sash",
+      ability: "Prankster",
+      moves: ["Moonblast", "Tailwind", "Encore", "Protect"],
+    },
+    Pelipper: {
+      nature: "Modest",
+      item: "Damp Rock",
+      ability: "Drizzle",
+      moves: ["Hurricane", "Weather Ball", "Tailwind", "Protect"],
+    },
+  };
+  const esc = (x) =>
+    String(x ?? "").replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c],
+    );
+  const fmt = (x) => new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 }).format(x);
+  /** Übersetzt interne englische Datennamen und bildet die Namen besonderer Formen. */
+  function tr(kind, name) {
+    if (kind === "moves" && name === ChampionsRules.EMPTY) return "Keine Attacke";
+    if (!name) return "Kein Item";
+    if (kind === "species" && name.includes("-Mega")) {
+      const base = name.split("-Mega")[0];
+      return (
+        "Mega-" + (GermanNames.species[base] || base) + name.split("-Mega")[1].replaceAll("-", " ")
+      );
+    }
+    if (kind === "species" && !GermanNames.species[name]) {
+      const s = ChampionsDex.species.get(Calculator.toID(name));
+      if (s?.baseSpecies) {
+        const base = GermanNames.species[s.baseSpecies] || s.baseSpecies;
+        const suffix = name.slice(s.baseSpecies.length).replace(/^-/, "");
+        return suffix.startsWith("Mega")
+          ? "Mega-" + base + suffix.replace("Mega", "").replaceAll("-", " ")
+          : base + " (" + suffix + ")";
+      }
+    }
+    return GermanNames[kind]?.[name] || name;
+  }
+  /** Erstellt einen legalen Ausgangsentwurf. Die vorgeschlagenen Punkte sind Annahmen, keine Empfehlung. */
+  function makeSet(name) {
+    const s = ChampionsDex.species.get(Calculator.toID(name));
+    const d = defaults[name] || {};
+    const special = s.baseStats.spa > s.baseStats.atk;
+    const points = Object.fromEntries(STATS.map((k) => [k, 0]));
+    points.hp = d.spread === "bulk" ? 32 : 2;
+    points[d.spread === "bulk" ? "spd" : special ? "spa" : "atk"] = 32;
+    points[d.spread === "bulk" ? "def" : "spe"] = d.spread === "bulk" ? 2 : 32;
+    const suggestions = ChampionsRules.moves(name)
+      .filter(
+        (m) =>
+          m.basePower >= 60 &&
+          m.basePower <= 100 &&
+          s.types.includes(m.type) &&
+          m.category === (special ? "Special" : "Physical"),
+      )
+      .slice(0, 3)
+      .map((m) => m.name);
+    return ChampionsRules.prepare({
+      species: name,
+      nature: d.nature || (special ? "Timid" : "Jolly"),
+      item: TeamTools.megaItem(name) || (items.some((x) => x.name === d.item) ? d.item : ""),
+      ability: d.ability || s.abilities?.[0] || "",
+      abilityOn: false,
+      points,
+      boosts: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
+      hp: 0,
+      status: "",
+      moves: d.moves || [...suggestions, "Protect"],
+    });
+  }
+  const initialOwn = [
+    "Garchomp",
+    "Incineroar",
+    "Rillaboom",
+    "Gardevoir",
+    "Rotom-Wash",
+    "Dragonite",
+  ].map(makeSet);
+  const initialFoe = [
+    "Salamence",
+    "Gengar",
+    "Primarina",
+    "Kingambit",
+    "Whimsicott",
+    "Pelipper",
+  ].map(makeSet);
+  // Ein zentraler Ansichts-Zustand. builder ist eine Kopie; Abbrechen verändert own nicht.
+  const state = {
+    view: "calc",
+    libraryReturn: "calc",
+    librarySide: "own",
+    foeLibraryId: null,
+    foeName: "Gegnerteam",
+    panels: { speed: false, damage: false, preview: false },
+    ownLibraryId: null,
+    ownName: "Mein Team",
+    builderLibraryId: null,
+    builderName: "Mein Team",
+    builderTab: "editor",
+    builder: [],
+    builderIndex: 0,
+    theme: "light",
+    beginnerTips: false,
+    own: initialOwn,
+    foe: initialFoe,
+    ownIndex: 0,
+    foeIndex: 0,
+    ownMove: 0,
+    foeMove: 0,
+    tab: "foe",
+    crit: false,
+    hits: 0,
+    example: true,
+    field: {
+      gameType: "Doubles",
+      weather: "",
+      terrain: "",
+      trickRoom: false,
+      spread: true,
+      own: {},
+      foe: {},
+    },
+  };
+  try {
+    const prefs = JSON.parse(localStorage.getItem("kampfcheck-preferences-v1") || "{}");
+    state.theme = prefs.theme === "dark" ? "dark" : "light";
+    state.beginnerTips = prefs.beginnerTips === true;
+    state.field.gameType = prefs.gameType === "Singles" ? "Singles" : "Doubles";
+    for (const key of Object.keys(state.panels)) {
+      if (typeof prefs.panels?.[key] === "boolean") state.panels[key] = prefs.panels[key];
+    }
+  } catch {}
+  let storageWorks = true;
+  try {
+    const saved = JSON.parse(localStorage.getItem("kampfcheck-team-v1") || "null");
+    if (
+      saved?.team?.length === 6 &&
+      saved.team.every(
+        (s) =>
+          !BattleCore.validate(s) &&
+          Array.isArray(s.moves) &&
+          s.moves.length === 4 &&
+          s.moves.every((m) => ChampionsDex.moves.get(Calculator.toID(m))),
+      )
+    ) {
+      state.own = saved.team.map((s) => ({
+        ...makeSet(s.species),
+        ...s,
+        boosts: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
+        hp: 0,
+        status: "",
+        abilityOn: false,
+      }));
+      state.example = !!saved.example;
+      state.ownLibraryId = typeof saved.libraryId === "string" ? saved.libraryId : null;
+      state.ownName = typeof saved.name === "string" ? saved.name.slice(0, 60) : "Mein Team";
+    }
+  } catch {
+    storageWorks = false;
+  }
+  /** Speichert nur das eigene Arbeitsteam. Benannte Teams werden separat und ausdrücklich gespeichert. */
+  function save() {
+    try {
+      localStorage.setItem(
+        "kampfcheck-team-v1",
+        JSON.stringify({
+          version: 1,
+          team: state.own,
+          example: state.example,
+          libraryId: state.ownLibraryId,
+          name: state.ownName,
+        }),
+      );
+      storageWorks = true;
+      return true;
+    } catch {
+      storageWorks = false;
+      toast("Der Browser blockiert das Speichern. Exportiere dein Team als Sicherung.");
+      return false;
+    }
+  }
+  /** UI-Einstellungen bleiben zwischen Sitzungen erhalten; Kampfzustände werden nicht gespeichert. */
+  function savePreferences() {
+    try {
+      localStorage.setItem(
+        "kampfcheck-preferences-v1",
+        JSON.stringify({
+          theme: state.theme,
+          beginnerTips: state.beginnerTips,
+          gameType: state.field.gameType,
+          panels: state.panels,
+        }),
+      );
+    } catch {}
+  }
+  function applyTheme() {
+    document.documentElement.dataset.theme = state.theme;
+    const button = document.getElementById("theme-toggle");
+    button.textContent = state.theme === "dark" ? "☀ Hellmodus" : "☾ Darkmode";
+    button.setAttribute("aria-pressed", String(state.theme === "dark"));
+    button.setAttribute(
+      "aria-label",
+      state.theme === "dark" ? "Hellmodus aktivieren" : "Darkmode aktivieren",
+    );
+  }
+  function toast(s) {
+    const t = document.getElementById("toast");
+    t.textContent = s;
+    t.classList.add("visible");
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => t.classList.remove("visible"), 4000);
+  }
+  function opts(list, value) {
+    return list
+      .map(
+        ([v, label]) =>
+          html`<option value="${esc(v)}" ${v === value ? "selected" : ""}>${esc(label)}</option>`,
+      )
+      .join("");
+  }
+  function select(label, field, value, list, side, extra = "") {
+    return html`<label
+      ><span class="field-label">${esc(label)}</span
+      ><select data-side="${side}" data-field="${field}" ${extra}>
+        ${opts(list, value)}
+      </select></label
+    >`;
+  }
+  function spriteId(name) {
+    const direct =
+      GermanNames.pokemonIds[name.toLowerCase().replaceAll(" ", "-").replaceAll(".", "")];
+    if (direct) return direct;
+    const sp = ChampionsDex.species.get(Calculator.toID(name));
+    return (
+      GermanNames.speciesIds[name] ||
+      GermanNames.speciesIds[sp?.baseSpecies] ||
+      GermanNames.speciesIds[name.split("-")[0]]
+    );
+  }
+  function sprite(name) {
+    const id = spriteId(name);
+    return id
+      ? html`<img
+          class="sprite"
+          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${Number(id)}.png"
+          alt=""
+          loading="lazy"
+          width="96"
+          height="96"
+        />`
+      : '<span class="sprite"></span>';
+  }
+  function teamPanel(side) {
+    return html`<section
+      class="team-panel ${side === "foe" ? "enemy" : ""}"
+      aria-label="${side === "own" ? "Dein Team" : "Gegnerteam"}"
+    >
+      <div class="team-heading">
+        <span class="eyebrow"
+          ><i class="side-marker"></i>${side === "own" ? "Dein Team" : "Gegnerische Vorschau"}</span
+        ><small
+          >${side === "own" ? (state.example ? "Beispielteam · frei anpassbar" : TeamLibraryUI.badge("own")) : TeamLibraryUI.badge("foe")}</small
+        >
+      </div>
+      <div class="roster">
+        ${state[side].map((s, i) => html`<button class="roster-slot ${state[side + "Index"] === i ? "selected" : ""}" data-action="slot" data-side="${side}" data-index="${i}" aria-pressed="${state[side + "Index"] === i}" aria-label="${esc(tr("species", s.species))} ${side === "own" ? "in deinem Team" : "im Gegnerteam"} auswählen"><span class="slot-number">${i + 1}</span>${sprite(s.species)}<span class="slot-name">${esc(tr("species", s.species))}</span><span class="roster-item" title="${esc(s.item ? tr("items", s.item) : "Kein Item")}">${BuilderUI.itemIcon(s.item)}</span></button>`).join("")}
+      </div>
+      ${side === "foe" ? TeamLibraryUI.foeControls() : ""}
+    </section>`;
+  }
+  const checks = [
+    ["isTailwind", "Rückenwind"],
+    ["isReflect", "Reflektor"],
+    ["isLightScreen", "Lichtschild"],
+    ["isAuroraVeil", "Auroraschleier"],
+    ["isHelpingHand", "Rechte Hand"],
+    ["isFriendGuard", "Freundeshut"],
+    ["isProtected", "Schutzschild"],
+  ];
 
- function legalityNotice(set){const issues=Q.issues(set);return issues.length?'<div class="legality-warning" role="alert"><strong>Champions-Einträge korrigieren</strong><ul>'+issues.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul></div>':'';}
- function abilityField(set,side){const available=Q.abilities(set.species);return '<label><span class="field-label">Fähigkeit</span><select data-side="'+side+'" data-field="ability" data-kind="abilities" aria-label="Fähigkeit">'+(!Q.canAbility(set.species,set.ability)?'<option value="'+esc(set.ability)+'" selected disabled>'+esc(tr('abilities',set.ability))+' – nicht zulässig</option>':'')+opts(available.map(a=>[a.name,tr('abilities',a.name)]),set.ability)+'</select></label>';}
- function moveList(set,side){return '<datalist id="moves-'+side+'-list"><option value="Keine Attacke"></option>'+Q.moves(set.species).sort((a,b)=>tr('moves',a.name).localeCompare(tr('moves',b.name),'de')).map(m=>'<option value="'+esc(tr('moves',m.name))+'" label="'+esc(m.name)+'"></option>').join('')+'</datalist>';}
- function matchupInvalid(){return [state.own[state.ownIndex],state.foe[state.foeIndex]].some(s=>Q.validate(s));}
- function blockedResult(){return '<div class="card empty-result legality-block">Korrigiere zuerst die markierten Champions-Einträge. Danach werden Tempo und Schaden wieder berechnet.</div>';}
- function fighter(side){const s=state[side][state[side+'Index']],p=K.makePokemon(s),sp=G.species.get(C.toID(s.species)),sum=Object.values(s.points).reduce((a,b)=>a+b,0);return `<section id="editor-${side}" class="card fighter-card ${side==='foe'?'enemy':''}"><div class="fighter-head"><div><span class="tag">${side==='builder'?'Teamplatz '+(state.builderIndex+1):side!=='foe'?'Dein aktives Pokémon':'Gegner'}</span><h2>${esc(tr('species',s.species))}</h2><div class="type-tags">${sp.types.map(t=>`<span class="type-tag type-${t}">${types[t]}</span>`).join('')}</div></div>${sprite(s.species)}</div>${B.formSwitch(s,side)}${legalityNotice(s)}${s.assumptionNote?`<p class="set-assumption">${esc(s.assumptionNote)}</p>`:''}<div class="form-fields"><label><span class="field-label">Pokémon oder Mega-Form suchen</span><input class="search-input" aria-label="${side!=='foe'?'Eigenes':'Gegnerisches'} Pokémon" data-side="${side}" data-field="species" data-kind="species" list="species-list" value="${esc(tr('species',s.species))}" autocomplete="off"></label><div class="form-row item-nature-row">${B.itemField(s,side)}${B.natureField(s,side)}</div><div class="form-row">${abilityField(s,side)}${side==='builder'?'':select('Status','status',s.status,statusList,side)}</div><label class="toggle-label combat-only" title="Für ausgelöste Effekte wie Bedroher oder aktiviertes Entlastung. Permanente Fähigkeiten funktionieren ohne Schalter."><input type="checkbox" data-side="${side}" data-field="abilityOn" ${s.abilityOn?'checked':''}>Ausgelöster Effekt aktiv (z. B. Bedroher)</label><div class="preset-row"><button class="preset" data-action="preset" data-side="${side}" data-value="fast">Maximal schnell</button><button class="preset" data-action="preset" data-side="${side}" data-value="offense">Maximal offensiv</button><button class="preset" data-action="preset" data-side="${side}" data-value="bulk">Defensiv</button></div></div><div class="stats-block"><div class="stats-title"><strong>Statuspunkte</strong><span class="points-count">${sum} / 66 vergeben</span></div><div class="stats-grid">${STATS.map(k=>`<label class="stat-cell ${B.statClass(s,k)}"><span>${names[k]}${B.statClass(s,k)==='nature-up'?' ↑':B.statClass(s,k)==='nature-down'?' ↓':''}</span><input type="number" min="0" max="32" step="1" data-side="${side}" data-points="${k}" value="${s.points[k]}" aria-label="${side!=='foe'?'Eigene':'Gegnerische'} ${names[k]} Statuspunkte"><b class="stat-value">${p.rawStats[k]}</b></label>`).join('')}</div><p class="small-note">Oben: Punkte. Unten: Statuswert vor Kampf-Effekten.</p></div><div class="fighter-details"><div class="form-row combat-only"><label><span class="field-label">Aktuelle KP · max. ${p.maxHP()}</span><input type="number" min="1" max="${p.maxHP()}" value="${p.curHP()}" data-side="${side}" data-field="hp" aria-label="${side!=='foe'?'Eigene':'Gegnerische'} aktuelle KP"></label><button class="preset" data-action="heal" data-side="${side}" style="align-self:end;min-height:38px">Volle KP</button></div><details class="combat-only" style="margin-top:10px"><summary>Statusstufen ändern</summary><div class="boost-grid">${STATS.filter(k=>k!=='hp').map(k=>`<label>${names[k]}<select data-side="${side}" data-boost="${k}" aria-label="${side!=='foe'?'Eigene':'Gegnerische'} ${names[k]} Stufe">${opts(Array.from({length:13},(_,i)=>[i-6,i-6>0?'+'+(i-6):String(i-6)]),s.boosts[k]||0)}</select></label>`).join('')}</div></details><details open><summary>Vier Attacken</summary><p class="small-note">Nur Attacken, die dieses Pokémon in Champions lernen kann.</p>${moveList(s,side)}<div class="moves-edit">${s.moves.map((m,i)=>`<label>${i+1}<input data-side="${side}" data-move="${i}" data-kind="moves" list="moves-${side}-list" value="${esc(tr('moves',m))}" aria-label="${side!=='foe'?'Eigene':'Gegnerische'} Attacke ${i+1}" autocomplete="off"></label>`).join('')}</div></details></div><div class="conditions combat-only"><h3>${side!=='foe'?'Deine':'Gegnerische'} Feldseite</h3><div class="checks">${checks.filter(([key])=>side!=='builder'&&(state.field.gameType!=='Singles'||!['isHelpingHand','isFriendGuard'].includes(key))).map(([key,label])=>`<label><input type="checkbox" data-side="${side}" data-condition="${key}" ${state.field[side][key]?'checked':''}>${label}</label>`).join('')}</div></div></section>`;}
- function fieldCard(){return `<section class="card field-card"><h3>Kampffeld</h3><div class="field-selects">${select('Wetter','weather',state.field.weather,weatherList,'field')}${select('Terrain','terrain',state.field.terrain,terrainList,'field')}</div><div class="field-switches"><label class="toggle-label"><input type="checkbox" data-side="field" data-field="trickRoom" ${state.field.trickRoom?'checked':''}>Bizarroraum</label>${state.field.gameType==='Singles'?'':`<label class="toggle-label"><input type="checkbox" data-side="field" data-field="spread" ${state.field.spread?'checked':''}>Flächenattacke trifft mehrere Ziele</label>`}</div></section>`;}
- function resultPanel(key,title,body){return `<details class="result-panel ${key}-panel" data-result-panel="${key}" ${state.panels[key]?'open':''}><summary><span>${title}</span><span class="result-disclosure" aria-hidden="true"></span></summary><div class="result-panel-body">${body}</div></details>`;}
- function speedCard(){if(matchupInvalid())return blockedResult();const a=state.own[state.ownIndex],d=state.foe[state.foeIndex],r=K.order(a,d,state.field,a.moves[state.ownMove],d.moves[state.foeMove]);const win=r.winner==='own',tie=r.winner==='tie';const title=tie?'Gleichstand.':win?'Du bist zuerst dran.':'Der Gegner ist zuerst dran.';const reason=r.reason==='Attackenpriorität'?`Priorität ${r.ownPriority>0?'+':''}${r.ownPriority} gegen ${r.foePriority>0?'+':''}${r.foePriority}.`:`${state.field.trickRoom?'Im Bizarroraum ist das langsamere Pokémon zuerst dran.':tie?'Bei gleicher Priorität entscheidet der Zufall (50 / 50).':'Bei gleicher Attackenpriorität entscheidet die Initiative.'}`;const share=r.attackerSpeed/(r.attackerSpeed+r.defenderSpeed)*100;return `<section class="card speed-card ${!win&&!tie?'losing':''}" aria-label="Zugreihenfolge"><div class="speed-eyebrow">WER GREIFT ZUERST AN?</div><h2 class="speed-verdict">${title}</h2><p class="speed-explanation">${reason}</p><div class="speed-comparison"><div><div class="speed-number own">${r.attackerSpeed}</div><div class="speed-name">${esc(tr('species',a.species))} · Initiative</div></div><span class="vs-label">VS</span><div style="text-align:right"><div class="speed-number">${r.defenderSpeed}</div><div class="speed-name">${esc(tr('species',d.species))} · Initiative</div></div></div><div class="speed-meter" aria-hidden="true"><span style="width:${share}%"></span><span style="width:${100-share}%"></span></div><p class="small-note" style="color:#b0c3cd">Gewählt: ${esc(tr('moves',a.moves[state.ownMove]))} ↔ ${esc(tr('moves',d.moves[state.foeMove]))}</p>${(a.item==='Quick Claw'||d.item==='Quick Claw'||a.ability==='Quick Draw'||d.ability==='Quick Draw'||a.item==='Lagging Tail'||d.item==='Lagging Tail'||a.ability==='Stall'||d.ability==='Stall')?'<p class="inline-warning">Ein Effekt kann die Zugreihenfolge zusätzlich verändern. Die Anzeige vergleicht hier nur Priorität und Initiative.</p>':''}</section>`;}
- function damageCard(){if(matchupInvalid())return blockedResult();const reverse=state.tab==='foe',a=state[reverse?'foe':'own'][state[reverse?'foeIndex':'ownIndex']],d=state[reverse?'own':'foe'][state[reverse?'ownIndex':'foeIndex']],index=state[reverse?'foeMove':'ownMove'];let r,results;try{results=a.moves.map(m=>K.analyze(a,d,m,state.field,{reverse,crit:state.crit,hits:state.hits}));r=results[index];}catch(err){console.error('Berechnung fehlgeschlagen',err);return '<section class="card damage-card"><p class="empty-result">Diese Kombination konnte nicht berechnet werden. Prüfe Pokémon, Attacken und Werte.</p></section>';}
- const percent=r.survive*100,zero=r.category==='Status',neutral=r.uncertain;const minPct=r.min/r.maxHP*100,maxPct=r.max/r.maxHP*100;
- let summary=zero?'Diese Statusattacke verursacht keinen direkten Schaden.':neutral?'Für diesen Spezialfall ist keine verlässliche Überlebenschance verfügbar.':r.survivalGuard?`${r.guardName} verhindert bei vollen KP ein K. o. durch diesen einzelnen Treffer.`:r.ko===0?'Hält den Treffer mit den eingestellten Werten sicher aus.':r.ko===1?'Wird durch diesen Treffer sicher besiegt.':'Ob es überlebt, hängt vom zufälligen Schadenswurf ab.';
- return `<section class="card damage-card"><div class="result-tabbar" role="tablist" aria-label="Schadensrichtung"><button class="result-tab ${reverse?'active':''}" data-action="tab" data-value="foe" role="tab" aria-selected="${reverse}">Schaden nehmen</button><button class="result-tab ${!reverse?'active':''}" data-action="tab" data-value="own" role="tab" aria-selected="${!reverse}">Schaden austeilen</button></div><div class="damage-content"><div class="section-label">${esc(tr('species',d.species))} überlebt</div><div class="survive-heading ${percent>=100?'safe':'danger'}"><b>${zero||neutral?'—':fmt(percent)+' %'}</b><span>${zero?'Statusattacke':'Chance bei Treffer'}</span></div><p class="survive-summary">${summary}</p><div class="hp-track" aria-label="${r.remainingMin} bis ${r.remainingMax} verbleibende KP"><span class="remaining" style="width:${r.remainingMin/r.maxHP*100}%"></span><span class="range" style="width:${(r.remainingMax-r.remainingMin)/r.maxHP*100}%"></span><span class="lost" style="width:${(r.hp-r.remainingMax)/r.maxHP*100}%"></span></div><div class="hp-labels"><span>Nach dem Treffer: ${neutral?'?':r.remainingMin+'–'+r.remainingMax} KP</span><span>${r.hp} / ${r.maxHP} KP</span></div><div class="damage-metrics"><div><div class="metric-label">Schadensspanne</div><div class="metric-value">${neutral?'Spezialfall':r.min+'–'+r.max+' KP'}</div></div><div><div class="metric-label">Anteil der maximalen KP</div><div class="metric-value">${neutral?'—':fmt(minPct)+'–'+fmt(maxPct)+' %'}</div></div></div><div class="attack-list" aria-label="${reverse?'Gegnerische':'Eigene'} Attacke auswählen">${a.moves.map((m,i)=>{const x=results[i];return `<button class="move-row ${i===index?'active':''}" data-action="choose-move" data-side="${reverse?'foe':'own'}" data-index="${i}" aria-pressed="${i===index}"><span><span class="move-name">${esc(tr('moves',m))}</span><span class="move-type" style="display:block">${types[x.type]||x.type} · ${categories[x.category]}${x.priority?' · Prio '+(x.priority>0?'+':'')+x.priority:''}</span></span><span class="move-damage">${x.category==='Status'?'—':x.uncertain?'Spezialfall':fmt(x.min/x.maxHP*100)+'–'+fmt(x.max/x.maxHP*100)+' %'}<small>${x.category==='Status'?'Kein direkter Schaden':x.uncertain?'Siehe Hinweise':fmt(x.ko*100)+' % K. o.'}</small></span></button>`;}).join('')}</div><div class="move-controls"><label class="toggle-label"><input type="checkbox" data-option="crit" ${state.crit?'checked':''}>Volltreffer</label><label><span class="field-label">Trefferzahl</span><select data-option="hits" ${K.hitOptions(a,a.moves[index]).length===1?'disabled':''}>${opts([[0,'Auto'],...K.hitOptions(a,a.moves[index]).map(n=>[n,String(n)])],state.hits)}</select></label></div>${r.hits>1?`<p class="small-note">Berechnet mit ${r.hits} Treffern${state.hits?'':' (Standardannahme)'}. Die Chance gilt nur für diese Trefferzahl.</p>`:''}${r.conditional?'<p class="inline-warning">Bedingte Attacke: Das Ergebnis gilt nur, wenn ihre Einsatzbedingung erfüllt ist (z. B. erster Zug bei Mogelhieb).</p>':''}<div class="assumption-banner"><span aria-hidden="true">ⓘ</span><span><b>Vorschau heißt: schätzen.</b> Gegnerische Sets sind Beispielannahmen. Passe sie an oder teste „maximal schnell“.</span></div><p class="small-note">Ohne Folgeschaden oder weitere Angriffe. Änderungen werden sofort berechnet.</p></div></section>`;}
- function speedTable(){if([...state.own,...state.foe].some(s=>Q.validate(s)))return blockedResult();const a=state.own[state.ownIndex];return `<section class="card section-bottom"><div class="table-header"><h3>Dein Tempo gegen die Vorschau</h3><span>${esc(tr('species',a.species))} · bei gleicher Priorität${state.field.trickRoom?' · Bizarroraum aktiv':''}</span></div><table class="speed-table"><thead><tr><th>Gegner</th><th>Initiative</th><th>Spanne¹</th><th>Zuerst dran</th></tr></thead><tbody>${state.foe.map((d,i)=>{const r=K.order(a,d,state.field,'Protect','Protect',true),min=structuredClone(d),max=structuredClone(d);min.points={...min.points,spe:0};min.nature='Brave';max.points={hp:0,atk:0,def:0,spa:0,spd:0,spe:32};max.nature='Timid';const lo=K.order(a,min,state.field,'Protect','Protect',true).defenderSpeed,hi=K.order(a,max,state.field,'Protect','Protect',true).defenderSpeed;return `<tr><td><button class="text-button table-name" data-action="slot" data-side="foe" data-index="${i}" style="text-decoration:none">${sprite(d.species)}${esc(tr('species',d.species))}</button></td><td><b>${r.defenderSpeed}</b></td><td>${lo}–${hi}</td><td class="${r.winner==='own'?'matchup-good':r.winner==='foe'?'matchup-bad':''}">${r.winner==='own'?'Du':r.winner==='foe'?'Gegner':'50 / 50'}</td></tr>`;}).join('')}</tbody></table><p class="switch-hint">¹ Minimales bis maximales Tempo durch Wesen und 0–32 Initiativepunkte. Eingestellte Items, Status und Feldeffekte gelten weiterhin.</p></section>`;}
- function lists(){return [['species',species]].map(([kind,list])=>`<datalist id="${kind}-list">${list.slice().sort((a,b)=>tr(kind,a.name).localeCompare(tr(kind,b.name),'de')).map(s=>`<option value="${esc(tr(kind,s.name))}" label="${esc(s.name)}"></option>`).join('')}</datalist>`).join('');}
- const dataLists=lists();
- const B=window.createKampfBuilderUI({state,esc,tr,sprite,types,fmt,onItem:(side,item)=>{if(!Q.canItem(item))return;state[side][state[side+'Index']].item=item;touchOwn(side);render();}});
- const V=window.createKampfLibraryUI({state,esc,tr,sprite,itemIcon:B.itemIcon,render,save,savePreferences,toast});
- function modeControls(){return `<div class="mode-bar"><div class="mode-switch" role="group" aria-label="Kampfmodus"><button data-action="mode" data-value="Doubles" aria-pressed="${state.field.gameType==='Doubles'}">Doppelkampf</button><button data-action="mode" data-value="Singles" aria-pressed="${state.field.gameType==='Singles'}">Einzelkampf</button></div><span>${state.field.gameType==='Singles'?'Ein Pokémon pro Seite':'Zwei Pokémon pro Seite'} · Champions · Level 50</span></div>`;}
- function builderView(){return `<div class="builder-view"><div class="workspace-title builder-title"><div><button class="text-button back-button" data-action="cancel-team">← Zum Rechner</button><h1>Dein Team zusammenstellen.</h1><p>Sechs Pokémon, ein Plan. Bearbeite dein Team oder teste eine Vorlage.</p></div><div class="toolbar"><button class="secondary-btn" data-action="cancel-team">Abbrechen</button><button class="secondary-btn" data-action="my-teams">Meine Teams</button><button class="primary-btn" data-action="save-named-team">Team speichern</button><button class="secondary-btn" data-action="save-team">Im Rechner verwenden ✓</button></div></div><div class="named-team-status">${V.badge('builder')}</div><div class="builder-nav" role="group" aria-label="Team-Bereiche">${[['editor','Team bearbeiten'],['analysis','Team-Check'],['meta','Meta & Vorlagen']].map(([v,label])=>`<button data-action="builder-tab" data-value="${v}" aria-pressed="${state.builderTab===v}">${label}</button>`).join('')}</div>${modeControls()}${state.builderTab==='analysis'?B.analysis(state.builder):state.builderTab==='meta'?B.metaView():`<div class="builder-layout"><section class="card builder-roster"><div class="builder-roster-head"><span class="eyebrow">Deine sechs Pokémon</span><p>Mit „Team speichern“ legst du einen Namen fest und findest dein Team später unter „Meine Teams“.</p></div><div class="builder-slots">${state.builder.map((s,i)=>`<button class="builder-slot ${state.builderIndex===i?'selected':''}" data-action="slot" data-side="builder" data-index="${i}" aria-pressed="${state.builderIndex===i}" aria-label="Teamplatz ${i+1}: ${esc(tr('species',s.species))} bearbeiten"><span class="builder-number">0${i+1}</span>${sprite(s.species)}<span class="builder-slot-content"><strong>${esc(tr('species',s.species))}</strong><span class="builder-item">${B.itemIcon(s.item)}${esc(s.item?tr('items',s.item):'Kein Item')}</span><span>${esc(natures[s.nature])}</span><small>${s.moves.map(m=>esc(tr('moves',m))).join(' · ')}</small></span></button>`).join('')}</div></section><div class="builder-editor">${fighter('builder')}</div></div>`}</div>${dataLists}`;}
- function render(){
-   const details=[...app.querySelectorAll('details:not([data-result-panel])')].map(d=>d.open);
-   applyTheme();document.getElementById('format-label').textContent=(state.field.gameType==='Singles'?'Einzelkampf':'Doppelkampf')+' · Level 50';
-   if(state.view==='library')app.innerHTML=V.view();
-   else if(state.view==='team')app.innerHTML=builderView();
-   else app.innerHTML=`<div class="workspace-title"><div><h1>Ein Zug voraus.</h1><p>Initiative, Schaden und Überlebenschancen im ${state.field.gameType==='Singles'?'Einzelkampf':'Doppelkampf'}.</p><div class="mobile-nav"><a href="#editor-own">Dein Pokémon bearbeiten ↓</a><a href="#editor-foe">Gegner bearbeiten ↓</a></div></div><div class="toolbar"><button class="primary-btn" data-action="build-team">＋ Team zusammenstellen</button><button class="secondary-btn" data-action="my-teams">Meine Teams</button><button class="secondary-btn" data-action="save-named-team">Team speichern</button><details class="file-actions"><summary>Datei-Sicherung</summary><div><button class="secondary-btn" data-action="export">Exportieren ↓</button><button class="secondary-btn" data-action="import">Datei importieren</button></div></details><input type="file" id="import-file" accept="application/json,.json" hidden></div></div>${modeControls()}<div class="teams-grid">${teamPanel('own')}${teamPanel('foe')}</div><div class="arena-grid">${fighter('own')}<div class="result-column">${resultPanel('speed','Wer ist schneller?',speedCard())}${resultPanel('damage','Schaden & Überleben',damageCard())}${fieldCard()}</div>${fighter('foe')}</div>${resultPanel('preview','Tempo gegen die Vorschau',speedTable())}${dataLists}`;
-   const nextDetails=[...app.querySelectorAll('details:not([data-result-panel])')];if(details.length===nextDetails.length)nextDetails.forEach((d,i)=>d.open=details[i]);
- }
+  function legalityNotice(set) {
+    const issues = ChampionsRules.issues(set);
+    return issues.length
+      ? '<div class="legality-warning" role="alert"><strong>Champions-Einträge korrigieren</strong><ul>' +
+          issues.map((s) => "<li>" + esc(s) + "</li>").join("") +
+          "</ul></div>"
+      : "";
+  }
+  function abilityField(set, side) {
+    const available = ChampionsRules.abilities(set.species);
+    return (
+      '<label><span class="field-label">Fähigkeit</span><select data-side="' +
+      side +
+      '" data-field="ability" data-kind="abilities" aria-label="Fähigkeit">' +
+      (!ChampionsRules.canAbility(set.species, set.ability)
+        ? '<option value="' +
+          esc(set.ability) +
+          '" selected disabled>' +
+          esc(tr("abilities", set.ability)) +
+          " – nicht zulässig</option>"
+        : "") +
+      opts(
+        available.map((a) => [a.name, tr("abilities", a.name)]),
+        set.ability,
+      ) +
+      "</select></label>"
+    );
+  }
+  function moveList(set, side) {
+    return (
+      '<datalist id="moves-' +
+      side +
+      '-list"><option value="Keine Attacke"></option>' +
+      ChampionsRules.moves(set.species)
+        .sort((a, b) => tr("moves", a.name).localeCompare(tr("moves", b.name), "de"))
+        .map(
+          (m) =>
+            '<option value="' +
+            esc(tr("moves", m.name)) +
+            '" label="' +
+            esc(m.name) +
+            '"></option>',
+        )
+        .join("") +
+      "</datalist>"
+    );
+  }
+  function matchupInvalid() {
+    return [state.own[state.ownIndex], state.foe[state.foeIndex]].some((s) =>
+      ChampionsRules.validate(s),
+    );
+  }
+  function blockedResult() {
+    return '<div class="card empty-result legality-block">Korrigiere zuerst die markierten Champions-Einträge. Danach werden Tempo und Schaden wieder berechnet.</div>';
+  }
+  /** Gemeinsamer Editor für eigenes Pokémon, Gegner und Team-Entwurf. side bestimmt das Ziel. */
+  function fighter(side) {
+    const s = state[side][state[side + "Index"]],
+      p = BattleCore.makePokemon(s),
+      sp = ChampionsDex.species.get(Calculator.toID(s.species)),
+      sum = Object.values(s.points).reduce((a, b) => a + b, 0);
+    return html`<section
+      id="editor-${side}"
+      class="card fighter-card ${side === "foe" ? "enemy" : ""}"
+    >
+      <div class="fighter-head">
+        <div>
+          <span class="tag"
+            >${side === "builder" ? "Teamplatz " + (state.builderIndex + 1) : side !== "foe" ? "Dein aktives Pokémon" : "Gegner"}</span
+          >
+          <h2>${esc(tr("species", s.species))}</h2>
+          <div class="type-tags">
+            ${sp.types.map((t) => html`<span class="type-tag type-${t}">${types[t]}</span>`).join("")}
+          </div>
+        </div>
+        ${sprite(s.species)}
+      </div>
+      ${BuilderUI.formSwitch(s, side)}${legalityNotice(s)}${s.assumptionNote ? html`<p class="set-assumption">${esc(s.assumptionNote)}</p>` : ""}
+      <div class="form-fields">
+        <label
+          ><span class="field-label">Pokémon oder Mega-Form suchen</span
+          ><input
+            class="search-input"
+            aria-label="${side !== "foe" ? "Eigenes" : "Gegnerisches"} Pokémon"
+            data-side="${side}"
+            data-field="species"
+            data-kind="species"
+            list="species-list"
+            value="${esc(tr("species", s.species))}"
+            autocomplete="off"
+        /></label>
+        <div class="form-row item-nature-row">
+          ${BuilderUI.itemField(s, side)}${BuilderUI.natureField(s, side)}
+        </div>
+        <div class="form-row">
+          ${abilityField(s, side)}${side === "builder" ? "" : select("Status", "status", s.status, statusList, side)}
+        </div>
+        <label
+          class="toggle-label combat-only"
+          title="Für ausgelöste Effekte wie Bedroher oder aktiviertes Entlastung. Permanente Fähigkeiten funktionieren ohne Schalter."
+          ><input
+            type="checkbox"
+            data-side="${side}"
+            data-field="abilityOn"
+            ${s.abilityOn ? "checked" : ""}
+          />Ausgelöster Effekt aktiv (z. B. Bedroher)</label
+        >
+        <div class="preset-row">
+          <button class="preset" data-action="preset" data-side="${side}" data-value="fast">
+            Maximal schnell</button
+          ><button class="preset" data-action="preset" data-side="${side}" data-value="offense">
+            Maximal offensiv</button
+          ><button class="preset" data-action="preset" data-side="${side}" data-value="bulk">
+            Defensiv
+          </button>
+        </div>
+      </div>
+      <div class="stats-block">
+        <div class="stats-title">
+          <strong>Statuspunkte</strong><span class="points-count">${sum} / 66 vergeben</span>
+        </div>
+        <div class="stats-grid">
+          ${STATS.map((k) => html`<label class="stat-cell ${BuilderUI.statClass(s, k)}"><span>${names[k]}${BuilderUI.statClass(s, k) === "nature-up" ? " ↑" : BuilderUI.statClass(s, k) === "nature-down" ? " ↓" : ""}</span><input type="number" min="0" max="32" step="1" data-side="${side}" data-points="${k}" value="${s.points[k]}" aria-label="${side !== "foe" ? "Eigene" : "Gegnerische"} ${names[k]} Statuspunkte" /><b class="stat-value">${p.rawStats[k]}</b></label>`).join("")}
+        </div>
+        <p class="small-note">Oben: Punkte. Unten: Statuswert vor Kampf-Effekten.</p>
+      </div>
+      <div class="fighter-details">
+        <div class="form-row combat-only">
+          <label
+            ><span class="field-label">Aktuelle KP · max. ${p.maxHP()}</span
+            ><input
+              type="number"
+              min="1"
+              max="${p.maxHP()}"
+              value="${p.curHP()}"
+              data-side="${side}"
+              data-field="hp"
+              aria-label="${side !== "foe" ? "Eigene" : "Gegnerische"} aktuelle KP" /></label
+          ><button
+            class="preset"
+            data-action="heal"
+            data-side="${side}"
+            style="align-self:end;min-height:38px"
+          >
+            Volle KP
+          </button>
+        </div>
+        <details class="combat-only" style="margin-top:10px">
+          <summary>Statusstufen ändern</summary>
+          <div class="boost-grid">
+            ${STATS.filter((k) => k !== "hp")
+              .map(
+                (k) =>
+                  html`<label
+                    >${names[k]}<select
+                      data-side="${side}"
+                      data-boost="${k}"
+                      aria-label="${side !== "foe" ? "Eigene" : "Gegnerische"} ${names[k]} Stufe"
+                    >
+                      ${opts(
+                        Array.from({ length: 13 }, (_, i) => [
+                          i - 6,
+                          i - 6 > 0 ? "+" + (i - 6) : String(i - 6),
+                        ]),
+                        s.boosts[k] || 0,
+                      )}
+                    </select></label
+                  >`,
+              )
+              .join("")}
+          </div>
+        </details>
+        <details open>
+          <summary>Vier Attacken</summary>
+          <p class="small-note">Nur Attacken, die dieses Pokémon in Champions lernen kann.</p>
+          ${moveList(s, side)}
+          <div class="moves-edit">
+            ${s.moves.map((m, i) => html`<label>${i + 1}<input data-side="${side}" data-move="${i}" data-kind="moves" list="moves-${side}-list" value="${esc(tr("moves", m))}" aria-label="${side !== "foe" ? "Eigene" : "Gegnerische"} Attacke ${i + 1}" autocomplete="off" /></label>`).join("")}
+          </div>
+        </details>
+      </div>
+      <div class="conditions combat-only">
+        <h3>${side !== "foe" ? "Deine" : "Gegnerische"} Feldseite</h3>
+        <div class="checks">
+          ${checks
+            .filter(
+              ([key]) =>
+                side !== "builder" &&
+                (state.field.gameType !== "Singles" ||
+                  !["isHelpingHand", "isFriendGuard"].includes(key)),
+            )
+            .map(
+              ([key, label]) =>
+                html`<label
+                  ><input
+                    type="checkbox"
+                    data-side="${side}"
+                    data-condition="${key}"
+                    ${state.field[side][key] ? "checked" : ""}
+                  />${label}</label
+                >`,
+            )
+            .join("")}
+        </div>
+      </div>
+    </section>`;
+  }
+  function fieldCard() {
+    return html`<section class="card field-card">
+      <h3>Kampffeld</h3>
+      <div class="field-selects">
+        ${select("Wetter", "weather", state.field.weather, weatherList, "field")}${select("Terrain", "terrain", state.field.terrain, terrainList, "field")}
+      </div>
+      <div class="field-switches">
+        <label class="toggle-label"
+          ><input
+            type="checkbox"
+            data-side="field"
+            data-field="trickRoom"
+            ${state.field.trickRoom ? "checked" : ""}
+          />Bizarroraum</label
+        >${state.field.gameType === "Singles" ? "" : html`<label class="toggle-label"><input type="checkbox" data-side="field" data-field="spread" ${state.field.spread ? "checked" : ""} />Flächenattacke trifft mehrere Ziele</label>`}
+      </div>
+    </section>`;
+  }
+  function resultPanel(key, title, body) {
+    return html`<details
+      class="result-panel ${key}-panel"
+      data-result-panel="${key}"
+      ${state.panels[key] ? "open" : ""}
+    >
+      <summary>
+        <span>${title}</span><span class="result-disclosure" aria-hidden="true"></span>
+      </summary>
+      <div class="result-panel-body">${body}</div>
+    </details>`;
+  }
+  /** Zeigt die Zugreihenfolge des aktiven Vergleichs, sofern beide Sets gültig sind. */
+  function speedCard() {
+    if (matchupInvalid()) return blockedResult();
+    const a = state.own[state.ownIndex],
+      d = state.foe[state.foeIndex],
+      r = BattleCore.order(a, d, state.field, a.moves[state.ownMove], d.moves[state.foeMove]);
+    const win = r.winner === "own",
+      tie = r.winner === "tie";
+    const title = tie
+      ? "Gleichstand."
+      : win
+        ? "Du bist zuerst dran."
+        : "Der Gegner ist zuerst dran.";
+    const reason =
+      r.reason === "Attackenpriorität"
+        ? `Priorität ${r.ownPriority > 0 ? "+" : ""}${r.ownPriority} gegen ${r.foePriority > 0 ? "+" : ""}${r.foePriority}.`
+        : `${state.field.trickRoom ? "Im Bizarroraum ist das langsamere Pokémon zuerst dran." : tie ? "Bei gleicher Priorität entscheidet der Zufall (50 / 50)." : "Bei gleicher Attackenpriorität entscheidet die Initiative."}`;
+    const share = (r.attackerSpeed / (r.attackerSpeed + r.defenderSpeed)) * 100;
+    return html`<section
+      class="card speed-card ${!win && !tie ? "losing" : ""}"
+      aria-label="Zugreihenfolge"
+    >
+      <div class="speed-eyebrow">WER GREIFT ZUERST AN?</div>
+      <h2 class="speed-verdict">${title}</h2>
+      <p class="speed-explanation">${reason}</p>
+      <div class="speed-comparison">
+        <div>
+          <div class="speed-number own">${r.attackerSpeed}</div>
+          <div class="speed-name">${esc(tr("species", a.species))} · Initiative</div>
+        </div>
+        <span class="vs-label">VS</span>
+        <div style="text-align:right">
+          <div class="speed-number">${r.defenderSpeed}</div>
+          <div class="speed-name">${esc(tr("species", d.species))} · Initiative</div>
+        </div>
+      </div>
+      <div class="speed-meter" aria-hidden="true">
+        <span style="width:${share}%"></span><span style="width:${100 - share}%"></span>
+      </div>
+      <p class="small-note" style="color:#b0c3cd">
+        Gewählt: ${esc(tr("moves", a.moves[state.ownMove]))} ↔
+        ${esc(tr("moves", d.moves[state.foeMove]))}
+      </p>
+      ${a.item === "Quick Claw" || d.item === "Quick Claw" || a.ability === "Quick Draw" || d.ability === "Quick Draw" || a.item === "Lagging Tail" || d.item === "Lagging Tail" || a.ability === "Stall" || d.ability === "Stall" ? '<p class="inline-warning">Ein Effekt kann die Zugreihenfolge zusätzlich verändern. Die Anzeige vergleicht hier nur Priorität und Initiative.</p>' : ""}
+    </section>`;
+  }
+  /** Berechnet alle vier Attacken in der gewählten Richtung und zeigt die ausgewählte Attacke. */
+  function damageCard() {
+    if (matchupInvalid()) return blockedResult();
+    const reverse = state.tab === "foe",
+      a = state[reverse ? "foe" : "own"][state[reverse ? "foeIndex" : "ownIndex"]],
+      d = state[reverse ? "own" : "foe"][state[reverse ? "ownIndex" : "foeIndex"]],
+      index = state[reverse ? "foeMove" : "ownMove"];
+    let r, results;
+    try {
+      results = a.moves.map((m) =>
+        BattleCore.analyze(a, d, m, state.field, {
+          reverse,
+          crit: state.crit,
+          hits: state.hits,
+        }),
+      );
+      r = results[index];
+    } catch (err) {
+      console.error("Berechnung fehlgeschlagen", err);
+      return '<section class="card damage-card"><p class="empty-result">Diese Kombination konnte nicht berechnet werden. Prüfe Pokémon, Attacken und Werte.</p></section>';
+    }
+    const percent = r.survive * 100,
+      zero = r.category === "Status",
+      neutral = r.uncertain;
+    const minPct = (r.min / r.maxHP) * 100,
+      maxPct = (r.max / r.maxHP) * 100;
+    let summary = zero
+      ? "Diese Statusattacke verursacht keinen direkten Schaden."
+      : neutral
+        ? "Für diesen Spezialfall ist keine verlässliche Überlebenschance verfügbar."
+        : r.survivalGuard
+          ? `${r.guardName} verhindert bei vollen KP ein K. o. durch diesen einzelnen Treffer.`
+          : r.ko === 0
+            ? "Hält den Treffer mit den eingestellten Werten sicher aus."
+            : r.ko === 1
+              ? "Wird durch diesen Treffer sicher besiegt."
+              : "Ob es überlebt, hängt vom zufälligen Schadenswurf ab.";
+    return html`<section class="card damage-card">
+      <div class="result-tabbar" role="tablist" aria-label="Schadensrichtung">
+        <button
+          class="result-tab ${reverse ? "active" : ""}"
+          data-action="tab"
+          data-value="foe"
+          role="tab"
+          aria-selected="${reverse}"
+        >
+          Schaden nehmen</button
+        ><button
+          class="result-tab ${!reverse ? "active" : ""}"
+          data-action="tab"
+          data-value="own"
+          role="tab"
+          aria-selected="${!reverse}"
+        >
+          Schaden austeilen
+        </button>
+      </div>
+      <div class="damage-content">
+        <div class="section-label">${esc(tr("species", d.species))} überlebt</div>
+        <div class="survive-heading ${percent >= 100 ? "safe" : "danger"}">
+          <b>${zero || neutral ? "—" : fmt(percent) + " %"}</b
+          ><span>${zero ? "Statusattacke" : "Chance bei Treffer"}</span>
+        </div>
+        <p class="survive-summary">${summary}</p>
+        <div class="hp-track" aria-label="${r.remainingMin} bis ${r.remainingMax} verbleibende KP">
+          <span class="remaining" style="width:${(r.remainingMin / r.maxHP) * 100}%"></span
+          ><span
+            class="range"
+            style="width:${((r.remainingMax - r.remainingMin) / r.maxHP) * 100}%"
+          ></span
+          ><span class="lost" style="width:${((r.hp - r.remainingMax) / r.maxHP) * 100}%"></span>
+        </div>
+        <div class="hp-labels">
+          <span>Nach dem Treffer: ${neutral ? "?" : r.remainingMin + "–" + r.remainingMax} KP</span
+          ><span>${r.hp} / ${r.maxHP} KP</span>
+        </div>
+        <div class="damage-metrics">
+          <div>
+            <div class="metric-label">Schadensspanne</div>
+            <div class="metric-value">${neutral ? "Spezialfall" : r.min + "–" + r.max + " KP"}</div>
+          </div>
+          <div>
+            <div class="metric-label">Anteil der maximalen KP</div>
+            <div class="metric-value">
+              ${neutral ? "—" : fmt(minPct) + "–" + fmt(maxPct) + " %"}
+            </div>
+          </div>
+        </div>
+        <div
+          class="attack-list"
+          aria-label="${reverse ? "Gegnerische" : "Eigene"} Attacke auswählen"
+        >
+          ${a.moves
+            .map((m, i) => {
+              const x = results[i];
+              return html`<button
+                class="move-row ${i === index ? "active" : ""}"
+                data-action="choose-move"
+                data-side="${reverse ? "foe" : "own"}"
+                data-index="${i}"
+                aria-pressed="${i === index}"
+              >
+                <span
+                  ><span class="move-name">${esc(tr("moves", m))}</span
+                  ><span class="move-type" style="display:block"
+                    >${types[x.type] || x.type} ·
+                    ${categories[x.category]}${x.priority ? " · Prio " + (x.priority > 0 ? "+" : "") + x.priority : ""}</span
+                  ></span
+                ><span class="move-damage"
+                  >${x.category === "Status" ? "—" : x.uncertain ? "Spezialfall" : fmt((x.min / x.maxHP) * 100) + "–" + fmt((x.max / x.maxHP) * 100) + " %"}<small
+                    >${x.category === "Status" ? "Kein direkter Schaden" : x.uncertain ? "Siehe Hinweise" : fmt(x.ko * 100) + " % K. o."}</small
+                  ></span
+                >
+              </button>`;
+            })
+            .join("")}
+        </div>
+        <div class="move-controls">
+          <label class="toggle-label"
+            ><input
+              type="checkbox"
+              data-option="crit"
+              ${state.crit ? "checked" : ""}
+            />Volltreffer</label
+          ><label
+            ><span class="field-label">Trefferzahl</span
+            ><select
+              data-option="hits"
+              ${BattleCore.hitOptions(a, a.moves[index]).length === 1 ? "disabled" : ""}
+            >
+              ${opts([[0, "Auto"], ...BattleCore.hitOptions(a, a.moves[index]).map((n) => [n, String(n)])], state.hits)}
+            </select></label
+          >
+        </div>
+        ${r.hits > 1 ? html`<p class="small-note">Berechnet mit ${r.hits} Treffern${state.hits ? "" : " (Standardannahme)"}. Die Chance gilt nur für diese Trefferzahl.</p>` : ""}${r.conditional ? '<p class="inline-warning">Bedingte Attacke: Das Ergebnis gilt nur, wenn ihre Einsatzbedingung erfüllt ist (z. B. erster Zug bei Mogelhieb).</p>' : ""}
+        <div class="assumption-banner">
+          <span aria-hidden="true">ⓘ</span
+          ><span
+            ><b>Vorschau heißt: schätzen.</b> Gegnerische Sets sind Beispielannahmen. Passe sie an
+            oder teste „maximal schnell“.</span
+          >
+        </div>
+        <p class="small-note">
+          Ohne Folgeschaden oder weitere Angriffe. Änderungen werden sofort berechnet.
+        </p>
+      </div>
+    </section>`;
+  }
+  function speedTable() {
+    if ([...state.own, ...state.foe].some((s) => ChampionsRules.validate(s)))
+      return blockedResult();
+    const a = state.own[state.ownIndex];
+    return html`<section class="card section-bottom">
+      <div class="table-header">
+        <h3>Dein Tempo gegen die Vorschau</h3>
+        <span
+          >${esc(tr("species", a.species))} · bei gleicher
+          Priorität${state.field.trickRoom ? " · Bizarroraum aktiv" : ""}</span
+        >
+      </div>
+      <table class="speed-table">
+        <thead>
+          <tr>
+            <th>Gegner</th>
+            <th>Initiative</th>
+            <th>Spanne¹</th>
+            <th>Zuerst dran</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${state.foe
+            .map((d, i) => {
+              const r = BattleCore.order(a, d, state.field, "Protect", "Protect", true),
+                min = structuredClone(d),
+                max = structuredClone(d);
+              min.points = { ...min.points, spe: 0 };
+              min.nature = "Brave";
+              max.points = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 32 };
+              max.nature = "Timid";
+              const lo = BattleCore.order(
+                  a,
+                  min,
+                  state.field,
+                  "Protect",
+                  "Protect",
+                  true,
+                ).defenderSpeed,
+                hi = BattleCore.order(
+                  a,
+                  max,
+                  state.field,
+                  "Protect",
+                  "Protect",
+                  true,
+                ).defenderSpeed;
+              return html`<tr>
+                <td>
+                  <button
+                    class="text-button table-name"
+                    data-action="slot"
+                    data-side="foe"
+                    data-index="${i}"
+                    style="text-decoration:none"
+                  >
+                    ${sprite(d.species)}${esc(tr("species", d.species))}
+                  </button>
+                </td>
+                <td><b>${r.defenderSpeed}</b></td>
+                <td>${lo}–${hi}</td>
+                <td
+                  class="${r.winner === "own" ? "matchup-good" : r.winner === "foe" ? "matchup-bad" : ""}"
+                >
+                  ${r.winner === "own" ? "Du" : r.winner === "foe" ? "Gegner" : "50 / 50"}
+                </td>
+              </tr>`;
+            })
+            .join("")}
+        </tbody>
+      </table>
+      <p class="switch-hint">
+        ¹ Minimales bis maximales Tempo durch Wesen und 0–32 Initiativepunkte. Eingestellte Items,
+        Status und Feldeffekte gelten weiterhin.
+      </p>
+    </section>`;
+  }
+  function lists() {
+    return [["species", species]]
+      .map(
+        ([kind, list]) =>
+          html`<datalist id="${kind}-list">
+            ${list
+              .slice()
+              .sort((a, b) => tr(kind, a.name).localeCompare(tr(kind, b.name), "de"))
+              .map(
+                (s) =>
+                  html`<option value="${esc(tr(kind, s.name))}" label="${esc(s.name)}"></option>`,
+              )
+              .join("")}
+          </datalist>`,
+      )
+      .join("");
+  }
+  const dataLists = lists();
+  const BuilderUI = window.createKampfBuilderUI({
+    state,
+    esc,
+    tr,
+    sprite,
+    types,
+    fmt,
+    onItem: (side, item) => {
+      if (!ChampionsRules.canItem(item)) return;
+      state[side][state[side + "Index"]].item = item;
+      touchOwn(side);
+      render();
+    },
+  });
+  const TeamLibraryUI = window.createKampfLibraryUI({
+    state,
+    esc,
+    tr,
+    sprite,
+    itemIcon: BuilderUI.itemIcon,
+    render,
+    save,
+    savePreferences,
+    toast,
+  });
+  function modeControls() {
+    return html`<div class="mode-bar">
+      <div class="mode-switch" role="group" aria-label="Kampfmodus">
+        <button
+          data-action="mode"
+          data-value="Doubles"
+          aria-pressed="${state.field.gameType === "Doubles"}"
+        >
+          Doppelkampf</button
+        ><button
+          data-action="mode"
+          data-value="Singles"
+          aria-pressed="${state.field.gameType === "Singles"}"
+        >
+          Einzelkampf
+        </button>
+      </div>
+      <span
+        >${state.field.gameType === "Singles" ? "Ein Pokémon pro Seite" : "Zwei Pokémon pro Seite"}
+        · Champions · Level 50</span
+      >
+    </div>`;
+  }
+  function builderView() {
+    return html`<div class="builder-view">
+        <div class="workspace-title builder-title">
+          <div>
+            <button class="text-button back-button" data-action="cancel-team">← Zum Rechner</button>
+            <h1>Dein Team zusammenstellen.</h1>
+            <p>Sechs Pokémon, ein Plan. Bearbeite dein Team oder teste eine Vorlage.</p>
+          </div>
+          <div class="toolbar">
+            <button class="secondary-btn" data-action="cancel-team">Abbrechen</button
+            ><button class="secondary-btn" data-action="my-teams">Meine Teams</button
+            ><button class="primary-btn" data-action="save-named-team">Team speichern</button
+            ><button class="secondary-btn" data-action="save-team">Im Rechner verwenden ✓</button>
+          </div>
+        </div>
+        <div class="named-team-status">${TeamLibraryUI.badge("builder")}</div>
+        <div class="builder-nav" role="group" aria-label="Team-Bereiche">
+          ${[
+            ["editor", "Team bearbeiten"],
+            ["analysis", "Team-Check"],
+            ["meta", "Meta & Vorlagen"],
+          ]
+            .map(
+              ([v, label]) =>
+                html`<button
+                  data-action="builder-tab"
+                  data-value="${v}"
+                  aria-pressed="${state.builderTab === v}"
+                >
+                  ${label}
+                </button>`,
+            )
+            .join("")}
+        </div>
+        ${modeControls()}${
+          state.builderTab === "analysis"
+            ? BuilderUI.analysis(state.builder)
+            : state.builderTab === "meta"
+              ? BuilderUI.metaView()
+              : html`<div class="builder-layout">
+                  <section class="card builder-roster">
+                    <div class="builder-roster-head">
+                      <span class="eyebrow">Deine sechs Pokémon</span>
+                      <p>
+                        Mit „Team speichern“ legst du einen Namen fest und findest dein Team später
+                        unter „Meine Teams“.
+                      </p>
+                    </div>
+                    <div class="builder-slots">
+                      ${state.builder
+                        .map(
+                          (s, i) =>
+                            html`<button
+                              class="builder-slot ${state.builderIndex === i ? "selected" : ""}"
+                              data-action="slot"
+                              data-side="builder"
+                              data-index="${i}"
+                              aria-pressed="${state.builderIndex === i}"
+                              aria-label="Teamplatz ${i + 1}: ${esc(tr("species", s.species))} bearbeiten"
+                            >
+                              <span class="builder-number">0${i + 1}</span>${sprite(s.species)}<span
+                                class="builder-slot-content"
+                                ><strong>${esc(tr("species", s.species))}</strong
+                                ><span class="builder-item"
+                                  >${BuilderUI.itemIcon(s.item)}${esc(s.item ? tr("items", s.item) : "Kein Item")}</span
+                                ><span>${esc(natures[s.nature])}</span
+                                ><small
+                                  >${s.moves.map((m) => esc(tr("moves", m))).join(" · ")}</small
+                                ></span
+                              >
+                            </button>`,
+                        )
+                        .join("")}
+                    </div>
+                  </section>
+                  <div class="builder-editor">${fighter("builder")}</div>
+                </div>`
+        }
+      </div>
+      ${dataLists}`;
+  }
+  /** Rendert die aktuelle Ansicht neu und erhält den Zustand der einklappbaren Bereiche. */
+  function render() {
+    const details = [...app.querySelectorAll("details:not([data-result-panel])")].map(
+      (d) => d.open,
+    );
+    applyTheme();
+    document
+      .getElementById("beginner-toggle")
+      .setAttribute("aria-pressed", String(state.beginnerTips));
+    document.getElementById("format-label").textContent =
+      (state.field.gameType === "Singles" ? "Einzelkampf" : "Doppelkampf") + " · Level 50";
+    if (state.view === "library") app.innerHTML = TeamLibraryUI.view();
+    else if (state.view === "team") app.innerHTML = builderView();
+    else
+      app.innerHTML = html`<div class="workspace-title">
+          <div>
+            <h1>Ein Zug voraus.</h1>
+            <p>
+              Initiative, Schaden und Überlebenschancen im
+              ${state.field.gameType === "Singles" ? "Einzelkampf" : "Doppelkampf"}.
+            </p>
+            <div class="mobile-nav">
+              <a href="#editor-own">Dein Pokémon bearbeiten ↓</a
+              ><a href="#editor-foe">Gegner bearbeiten ↓</a>
+            </div>
+          </div>
+          <div class="toolbar">
+            <button class="primary-btn" data-action="build-team">＋ Team zusammenstellen</button
+            ><button class="secondary-btn" data-action="my-teams">Meine Teams</button
+            ><button class="secondary-btn" data-action="save-named-team">Team speichern</button>
+            <details class="file-actions">
+              <summary>Datei-Sicherung</summary>
+              <div>
+                <button class="secondary-btn" data-action="export">Exportieren ↓</button
+                ><button class="secondary-btn" data-action="import">Datei importieren</button>
+              </div>
+            </details>
+            <input type="file" id="import-file" accept="application/json,.json" hidden />
+          </div>
+        </div>
+        ${modeControls()}
+        <div class="teams-grid">${teamPanel("own")}${teamPanel("foe")}</div>
+        <div class="arena-grid">
+          ${fighter("own")}
+          <div class="result-column">
+            ${resultPanel("speed", "Wer ist schneller?", speedCard())}${resultPanel("damage", "Schaden & Überleben", damageCard())}${fieldCard()}
+          </div>
+          ${fighter("foe")}
+        </div>
+        ${resultPanel("preview", "Tempo gegen die Vorschau", speedTable())}${dataLists}`;
+    const nextDetails = [...app.querySelectorAll("details:not([data-result-panel])")];
+    if (details.length === nextDetails.length) nextDetails.forEach((d, i) => (d.open = details[i]));
+    // Die Hilfe ist freiwillig. Ihre Sichtbarkeit wird wie das Farbschema gespeichert.
+    if (state.beginnerTips)
+      app.insertAdjacentHTML("afterbegin", window.KampfBeginner.render(state));
+  }
 
- function resolve(kind,value){if(kind==='moves'&&['','keine attacke','(no move)'].includes(value.trim().toLowerCase()))return Q.EMPTY;const list={species,moves,items,abilities}[kind];return list.find(x=>x.name.toLowerCase()===value.trim().toLowerCase()||tr(kind,x.name).toLocaleLowerCase('de')===value.trim().toLocaleLowerCase('de'))?.name;}
- function touchOwn(side){if(side==='own'){state.example=false;save();}}
- app.addEventListener('toggle',e=>{const key=e.target.dataset.resultPanel;if(!key||!Object.hasOwn(state.panels,key)||!app.contains(e.target))return;state.panels[key]=e.target.open;savePreferences();},true);
- app.addEventListener('click',e=>{const btn=e.target.closest('[data-action]');if(!btn)return;const{action,side,index,value}=btn.dataset;
-   if(V.handle(action,value))return;
-   if(action==='build-team'){V.beginBuilder();state.builder=structuredClone(state.own);state.builderIndex=state.ownIndex;state.view='team';state.builderTab='editor';render();window.scrollTo(0,0);return;}
-   if(action==='cancel-team'){state.builder=[];state.view='calc';render();window.scrollTo(0,0);return;}
-   if(action==='save-team'){const invalid=state.builder.map(s=>K.validate(s)||Q.validate(s)).find(Boolean);if(invalid){toast(invalid);return;}V.adoptBuilder();state.own=state.builder.map(s=>({...s,boosts:{atk:0,def:0,spa:0,spd:0,spe:0},hp:0,status:'',abilityOn:false}));state.ownIndex=state.builderIndex;state.ownMove=0;state.example=false;const saved=save();state.view='calc';state.builder=[];render();window.scrollTo(0,0);if(saved)toast('Dein Team ist im Rechner übernommen. Benannte Teams speicherst du mit „Team speichern“.');return;}
-   if(action==='builder-tab'){state.builderTab=value;render();if(value==='meta')M.refresh(state.field.gameType,B.updateMetaView);return;}
-   if(action==='item-picker'){B.openItems(side);return;}
-   if(action==='form'){const old=state[side][state[side+'Index']];state[side][state[side+'Index']]=T.switchForm(old,value);touchOwn(side);render();return;}
-   if(action==='refresh-meta'){M.refresh(state.field.gameType,B.updateMetaView,true);B.updateMetaView();return;}
-   if(action==='template'){const t=window.KampfTemplates.teams.find(t=>t.id===value);if(!t)return;if(t.sets.some(s=>Q.validate(s))){toast('Diese historische Vorlage enthält aktuell unzulässige Einträge. Nutze eine aktuelle Teamvorlage.');return;}V.newDraft('Worlds 2026 · '+t.player);state.builder=t.sets.map(s=>({...makeSet(s.species),...structuredClone(s),assumptionNote:'Vorlage '+t.player+' · Worlds 2026: Statuspunkte sind eine Annahme, nicht veröffentlicht.'}));state.builderIndex=0;state.builderTab='editor';render();toast('Turnier-Vorlage geladen. Prüfe die angenommenen Statuspunkte vor dem Übernehmen.');return;}
-   if(action==='meta-team'){const draft=M.suggestions(state.field.gameType)[Number(index)];if(!draft)return;V.newDraft('Team um '+tr('species',draft.seed));const used=new Set();state.builder=draft.pokemon.map(p=>({...M.usageSet(p,makeSet,used),assumptionNote:'Statistik-Entwurf aus '+M.feeds[state.field.gameType].month+': häufige Bausteine kombiniert, kein belegtes Turnierteam.'}));state.builderIndex=0;state.builderTab='editor';render();toast('Statistik-Vorschlag als bearbeitbaren Entwurf geladen.');return;}
-   if(action==='meta-set'){const p=M.feeds[state.field.gameType].pokemon.find(p=>p.id===value);if(!p)return;state.builder[state.builderIndex]={...M.usageSet(p,makeSet),assumptionNote:'Statistik-Set aus '+M.feeds[state.field.gameType].month+': häufige Bausteine kombiniert.'};state.builderTab='editor';render();return;}
-   if(action==='mode'){state.field.gameType=value==='Singles'?'Singles':'Doubles';savePreferences();render();if(state.builderTab==='meta')M.refresh(state.field.gameType,B.updateMetaView);return;}
-   if(action==='slot'){state[side+'Index']=Number(index);state[side+'Move']=0;state.hits=0;}
-   else if(action==='tab'){state.tab=value;state.hits=0;}
-   else if(action==='choose-move'){state[side+'Move']=Number(index);state.hits=0;}
-   else if(action==='heal'){state[side][state[side+'Index']].hp=0;}
-   else if(action==='preset'){const s=state[side][state[side+'Index']],sp=G.species.get(C.toID(s.species)),special=sp.baseStats.spa>sp.baseStats.atk;s.points=Object.fromEntries(STATS.map(k=>[k,0]));if(value==='bulk'){s.points.hp=32;s.points.def=32;s.points.spd=2;s.nature='Bold';}else{s.points[special?'spa':'atk']=32;s.points.spe=32;s.points.hp=2;s.nature=value==='fast'?(special?'Timid':'Jolly'):(special?'Modest':'Adamant');}s.hp=0;touchOwn(side);toast(value==='bulk'?'Annahme: maximale physische Defensive.':'Wesen und Statuspunkte angepasst.');}
-   else if(action==='export'){const blob=new Blob([JSON.stringify({version:1,name:V.name('own'),gameType:state.field.gameType,team:state.own},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='kampfcheck-team.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return;}
-   else if(action==='import'){document.getElementById('import-file').click();return;}
-   render();
- });
- app.addEventListener('change',async e=>{const el=e.target;
-   if(el.id==='import-file'){const file=el.files[0];if(!file)return;try{if(file.size>100000)throw new Error('Die Teamdatei ist zu groß.');const data=JSON.parse(await file.text());if(!Array.isArray(data.team)||data.team.length!==6)throw new Error('Die Datei muss sechs Pokémon enthalten.');const checked=data.team.map(s=>{const error=K.validate(s)||Q.validate(s);if(error)throw new Error(error);if(!Array.isArray(s.moves)||s.moves.length!==4||s.moves.some(m=>!G.moves.get(C.toID(m))))throw new Error('Eine Attacke ist unbekannt.');if(s.item&&!G.items.get(C.toID(s.item)))throw new Error('Ein Item ist unbekannt.');if(!G.abilities.get(C.toID(s.ability)))throw new Error('Eine Fähigkeit ist unbekannt.');return {...makeSet(s.species),species:s.species,nature:s.nature,points:s.points,item:s.item||'',ability:s.ability,moves:s.moves,...(typeof s.normalAbility==='string'&&G.abilities.get(C.toID(s.normalAbility))?{normalAbility:s.normalAbility}:{}),...(typeof s.assumptionNote==='string'?{assumptionNote:s.assumptionNote.slice(0,300)}:{})};});state.own=checked;state.ownLibraryId=null;state.ownName=typeof data.name==='string'?data.name.slice(0,60):'Importiertes Team';if(['Singles','Doubles'].includes(data.gameType)){state.field.gameType=data.gameType;savePreferences();}state.ownIndex=0;touchOwn('own');render();toast('Dein Team wurde geladen.');}catch(err){toast(err.message||'Diese Teamdatei konnte nicht gelesen werden.');}return;}
-   const{side,field,kind,points,boost,move,condition,option}=el.dataset;
-   if(option){state[option]=el.type==='checkbox'?el.checked:Number(el.value);render();return;}
-   if(side==='field'){state.field[field]=el.type==='checkbox'?el.checked:el.value;render();return;}
-   if(!side)return;const set=state[side][state[side+'Index']];
-   if(condition)state.field[side][condition]=el.checked;
-   else if(points){const val=Number(el.value),sum=STATS.reduce((n,k)=>n+(k===points?0:set.points[k]),0);if(!Number.isInteger(val)||val<0||val>32||sum+val>66){el.value=set.points[points];toast('Maximal 32 Punkte je Wert und 66 insgesamt. Reduziere zuerst einen anderen Wert.');return;}set.points[points]=val;set.hp=0;touchOwn(side);}
-   else if(boost)set.boosts[boost]=Number(el.value);
-   else if(kind){let name=resolve(kind,el.value);if(name!==undefined&&((kind==='moves'&&!Q.canMove(set.species,name))||(kind==='abilities'&&!Q.canAbility(set.species,name)))){toast('Dieser Eintrag ist für dieses Pokémon in Champions nicht verfügbar.');el.value=move!==undefined?tr('moves',set.moves[Number(move)]):set[field];return;}if(kind==='moves'&&name!==undefined&&name!==Q.EMPTY&&set.moves.some((m,i)=>i!==Number(move)&&m===name)){toast('Diese Attacke ist bereits eingetragen.');el.value=tr('moves',set.moves[Number(move)]);return;}if(kind==='items'&&!el.value.trim())name='';if(name===undefined){toast('Bitte wähle einen gültigen Eintrag aus der Liste.');el.value=move!==undefined?tr('moves',set.moves[Number(move)]):tr(kind,set[field]);return;}if(field==='species'){const old=state[side][state[side+'Index']];const next=makeSet(name);const oldSpecies=G.species.get(C.toID(old.species)),newSpecies=G.species.get(C.toID(name));if((oldSpecies.baseSpecies||oldSpecies.name)===(newSpecies.baseSpecies||newSpecies.name)){next.points={...old.points};next.nature=old.nature;next.moves=[...old.moves];next.item=old.item;}if(T.forms(old.species).some(s=>s.name===name)){Object.assign(next,T.switchForm(old,name));}state[side][state[side+'Index']]=Q.prepare(next);state[side+'Move']=0;}else if(move!==undefined)set.moves[Number(move)]=name;else set[field]=name;touchOwn(side);}
-   else if(field==='hp')set.hp=K.clamp(Math.floor(Number(el.value)),1,K.makePokemon({...set,hp:0}).maxHP());
-   else if(field){set[field]=el.type==='checkbox'?el.checked:el.value;if(field==='nature')set.hp=0;touchOwn(side);}
-   render();
- });
- document.getElementById('theme-toggle').addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';applyTheme();savePreferences();});
- document.getElementById('about-button').addEventListener('click',()=>document.getElementById('info-dialog').showModal());
- document.getElementById('close-info').addEventListener('click',()=>document.getElementById('info-dialog').close());
- render();
- M.refresh(state.field.gameType,B.updateMetaView);
- setInterval(()=>{if(document.visibilityState==='visible')M.refresh(state.field.gameType,B.updateMetaView);},3600000);
+  /** Akzeptiert deutsche oder englische Eingaben und gibt den kanonischen englischen Namen zurück. */
+  function resolve(kind, value) {
+    if (kind === "moves" && ["", "keine attacke", "(no move)"].includes(value.trim().toLowerCase()))
+      return ChampionsRules.EMPTY;
+    const list = { species, moves, items, abilities }[kind];
+    return list.find(
+      (x) =>
+        x.name.toLowerCase() === value.trim().toLowerCase() ||
+        tr(kind, x.name).toLocaleLowerCase("de") === value.trim().toLocaleLowerCase("de"),
+    )?.name;
+  }
+  /** Autospeichern ist nur für das eigene Arbeitsteam vorgesehen, nie für Gegner oder Entwürfe. */
+  function touchOwn(side) {
+    if (side === "own") {
+      state.example = false;
+      save();
+    }
+  }
+  app.addEventListener(
+    "toggle",
+    (e) => {
+      const key = e.target.dataset.resultPanel;
+      if (!key || !Object.hasOwn(state.panels, key) || !app.contains(e.target)) return;
+      state.panels[key] = e.target.open;
+      savePreferences();
+    },
+    true,
+  );
+  // Ereignisdelegation: data-action in den Vorlagen benennt die Benutzeraktion.
+  app.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    const { action, side, index, value } = btn.dataset;
+    if (TeamLibraryUI.handle(action, value)) return;
+    if (action === "build-team") {
+      TeamLibraryUI.beginBuilder();
+      state.builder = structuredClone(state.own);
+      state.builderIndex = state.ownIndex;
+      state.view = "team";
+      state.builderTab = "editor";
+      render();
+      window.scrollTo(0, 0);
+      return;
+    }
+    if (action === "cancel-team") {
+      state.builder = [];
+      state.view = "calc";
+      render();
+      window.scrollTo(0, 0);
+      return;
+    }
+    if (action === "save-team") {
+      const invalid = state.builder
+        .map((s) => BattleCore.validate(s) || ChampionsRules.validate(s))
+        .find(Boolean);
+      if (invalid) {
+        toast(invalid);
+        return;
+      }
+      TeamLibraryUI.adoptBuilder();
+      state.own = state.builder.map((s) => ({
+        ...s,
+        boosts: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
+        hp: 0,
+        status: "",
+        abilityOn: false,
+      }));
+      state.ownIndex = state.builderIndex;
+      state.ownMove = 0;
+      state.example = false;
+      const saved = save();
+      state.view = "calc";
+      state.builder = [];
+      render();
+      window.scrollTo(0, 0);
+      if (saved)
+        toast(
+          "Dein Team ist im Rechner übernommen. Benannte Teams speicherst du mit „Team speichern“.",
+        );
+      return;
+    }
+    if (action === "builder-tab") {
+      state.builderTab = value;
+      render();
+      if (value === "meta") MetaData.refresh(state.field.gameType, BuilderUI.updateMetaView);
+      return;
+    }
+    if (action === "item-picker") {
+      BuilderUI.openItems(side);
+      return;
+    }
+    if (action === "form") {
+      const old = state[side][state[side + "Index"]];
+      state[side][state[side + "Index"]] = TeamTools.switchForm(old, value);
+      touchOwn(side);
+      render();
+      return;
+    }
+    if (action === "refresh-meta") {
+      MetaData.refresh(state.field.gameType, BuilderUI.updateMetaView, true);
+      BuilderUI.updateMetaView();
+      return;
+    }
+    if (action === "template") {
+      const t = window.KampfTemplates.teams.find((t) => t.id === value);
+      if (!t) return;
+      if (t.sets.some((s) => ChampionsRules.validate(s))) {
+        toast(
+          "Diese historische Vorlage enthält aktuell unzulässige Einträge. Nutze eine aktuelle Teamvorlage.",
+        );
+        return;
+      }
+      TeamLibraryUI.newDraft("Worlds 2026 · " + t.player);
+      state.builder = t.sets.map((s) => ({
+        ...makeSet(s.species),
+        ...structuredClone(s),
+        assumptionNote:
+          "Vorlage " +
+          t.player +
+          " · Worlds 2026: Statuspunkte sind eine Annahme, nicht veröffentlicht.",
+      }));
+      state.builderIndex = 0;
+      state.builderTab = "editor";
+      render();
+      toast("Turnier-Vorlage geladen. Prüfe die angenommenen Statuspunkte vor dem Übernehmen.");
+      return;
+    }
+    if (action === "meta-team") {
+      const draft = MetaData.suggestions(state.field.gameType)[Number(index)];
+      if (!draft) return;
+      TeamLibraryUI.newDraft("Team um " + tr("species", draft.seed));
+      const used = new Set();
+      state.builder = draft.pokemon.map((p) => ({
+        ...MetaData.usageSet(p, makeSet, used),
+        assumptionNote:
+          "Statistik-Entwurf aus " +
+          MetaData.feeds[state.field.gameType].month +
+          ": häufige Bausteine kombiniert, kein belegtes Turnierteam.",
+      }));
+      state.builderIndex = 0;
+      state.builderTab = "editor";
+      render();
+      toast("Statistik-Vorschlag als bearbeitbaren Entwurf geladen.");
+      return;
+    }
+    if (action === "meta-set") {
+      const p = MetaData.feeds[state.field.gameType].pokemon.find((p) => p.id === value);
+      if (!p) return;
+      state.builder[state.builderIndex] = {
+        ...MetaData.usageSet(p, makeSet),
+        assumptionNote:
+          "Statistik-Set aus " +
+          MetaData.feeds[state.field.gameType].month +
+          ": häufige Bausteine kombiniert.",
+      };
+      state.builderTab = "editor";
+      render();
+      return;
+    }
+    if (action === "mode") {
+      state.field.gameType = value === "Singles" ? "Singles" : "Doubles";
+      savePreferences();
+      render();
+      if (state.builderTab === "meta")
+        MetaData.refresh(state.field.gameType, BuilderUI.updateMetaView);
+      return;
+    }
+    if (action === "slot") {
+      state[side + "Index"] = Number(index);
+      state[side + "Move"] = 0;
+      state.hits = 0;
+    } else if (action === "tab") {
+      state.tab = value;
+      state.hits = 0;
+    } else if (action === "choose-move") {
+      state[side + "Move"] = Number(index);
+      state.hits = 0;
+    } else if (action === "heal") {
+      state[side][state[side + "Index"]].hp = 0;
+    } else if (action === "preset") {
+      const s = state[side][state[side + "Index"]],
+        sp = ChampionsDex.species.get(Calculator.toID(s.species)),
+        special = sp.baseStats.spa > sp.baseStats.atk;
+      s.points = Object.fromEntries(STATS.map((k) => [k, 0]));
+      if (value === "bulk") {
+        s.points.hp = 32;
+        s.points.def = 32;
+        s.points.spd = 2;
+        s.nature = "Bold";
+      } else {
+        s.points[special ? "spa" : "atk"] = 32;
+        s.points.spe = 32;
+        s.points.hp = 2;
+        s.nature =
+          value === "fast" ? (special ? "Timid" : "Jolly") : special ? "Modest" : "Adamant";
+      }
+      s.hp = 0;
+      touchOwn(side);
+      toast(
+        value === "bulk"
+          ? "Annahme: maximale physische Defensive."
+          : "Wesen und Statuspunkte angepasst.",
+      );
+    } else if (action === "export") {
+      const blob = new Blob(
+          [
+            JSON.stringify(
+              {
+                version: 1,
+                name: TeamLibraryUI.name("own"),
+                gameType: state.field.gameType,
+                team: state.own,
+              },
+              null,
+              2,
+            ),
+          ],
+          { type: "application/json" },
+        ),
+        url = URL.createObjectURL(blob),
+        link = document.createElement("a");
+      link.href = url;
+      link.download = "kampfcheck-team.json";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      return;
+    } else if (action === "import") {
+      document.getElementById("import-file").click();
+      return;
+    }
+    render();
+  });
+  // Eingaben werden geprüft, bevor sie den Zustand und damit die Berechnung ändern.
+  app.addEventListener("change", async (e) => {
+    const el = e.target;
+    if (el.id === "import-file") {
+      const file = el.files[0];
+      if (!file) return;
+      try {
+        if (file.size > 100000) throw new Error("Die Teamdatei ist zu groß.");
+        const data = JSON.parse(await file.text());
+        if (!Array.isArray(data.team) || data.team.length !== 6)
+          throw new Error("Die Datei muss sechs Pokémon enthalten.");
+        const checked = data.team.map((s) => {
+          const error = BattleCore.validate(s) || ChampionsRules.validate(s);
+          if (error) throw new Error(error);
+          if (
+            !Array.isArray(s.moves) ||
+            s.moves.length !== 4 ||
+            s.moves.some((m) => !ChampionsDex.moves.get(Calculator.toID(m)))
+          )
+            throw new Error("Eine Attacke ist unbekannt.");
+          if (s.item && !ChampionsDex.items.get(Calculator.toID(s.item)))
+            throw new Error("Ein Item ist unbekannt.");
+          if (!ChampionsDex.abilities.get(Calculator.toID(s.ability)))
+            throw new Error("Eine Fähigkeit ist unbekannt.");
+          return {
+            ...makeSet(s.species),
+            species: s.species,
+            nature: s.nature,
+            points: s.points,
+            item: s.item || "",
+            ability: s.ability,
+            moves: s.moves,
+            ...(typeof s.normalAbility === "string" &&
+            ChampionsDex.abilities.get(Calculator.toID(s.normalAbility))
+              ? { normalAbility: s.normalAbility }
+              : {}),
+            ...(typeof s.assumptionNote === "string"
+              ? { assumptionNote: s.assumptionNote.slice(0, 300) }
+              : {}),
+          };
+        });
+        state.own = checked;
+        state.ownLibraryId = null;
+        state.ownName =
+          typeof data.name === "string" ? data.name.slice(0, 60) : "Importiertes Team";
+        if (["Singles", "Doubles"].includes(data.gameType)) {
+          state.field.gameType = data.gameType;
+          savePreferences();
+        }
+        state.ownIndex = 0;
+        touchOwn("own");
+        render();
+        toast("Dein Team wurde geladen.");
+      } catch (err) {
+        toast(err.message || "Diese Teamdatei konnte nicht gelesen werden.");
+      }
+      return;
+    }
+    const { side, field, kind, points, boost, move, condition, option } = el.dataset;
+    if (option) {
+      state[option] = el.type === "checkbox" ? el.checked : Number(el.value);
+      render();
+      return;
+    }
+    if (side === "field") {
+      state.field[field] = el.type === "checkbox" ? el.checked : el.value;
+      render();
+      return;
+    }
+    if (!side) return;
+    const set = state[side][state[side + "Index"]];
+    if (condition) state.field[side][condition] = el.checked;
+    else if (points) {
+      const val = Number(el.value),
+        sum = STATS.reduce((n, k) => n + (k === points ? 0 : set.points[k]), 0);
+      if (!Number.isInteger(val) || val < 0 || val > 32 || sum + val > 66) {
+        el.value = set.points[points];
+        toast("Maximal 32 Punkte je Wert und 66 insgesamt. Reduziere zuerst einen anderen Wert.");
+        return;
+      }
+      set.points[points] = val;
+      set.hp = 0;
+      touchOwn(side);
+    } else if (boost) set.boosts[boost] = Number(el.value);
+    else if (kind) {
+      let name = resolve(kind, el.value);
+      if (
+        name !== undefined &&
+        ((kind === "moves" && !ChampionsRules.canMove(set.species, name)) ||
+          (kind === "abilities" && !ChampionsRules.canAbility(set.species, name)))
+      ) {
+        toast("Dieser Eintrag ist für dieses Pokémon in Champions nicht verfügbar.");
+        el.value = move !== undefined ? tr("moves", set.moves[Number(move)]) : set[field];
+        return;
+      }
+      if (
+        kind === "moves" &&
+        name !== undefined &&
+        name !== ChampionsRules.EMPTY &&
+        set.moves.some((m, i) => i !== Number(move) && m === name)
+      ) {
+        toast("Diese Attacke ist bereits eingetragen.");
+        el.value = tr("moves", set.moves[Number(move)]);
+        return;
+      }
+      if (kind === "items" && !el.value.trim()) name = "";
+      if (name === undefined) {
+        toast("Bitte wähle einen gültigen Eintrag aus der Liste.");
+        el.value = move !== undefined ? tr("moves", set.moves[Number(move)]) : tr(kind, set[field]);
+        return;
+      }
+      if (field === "species") {
+        const old = state[side][state[side + "Index"]];
+        const next = makeSet(name);
+        const oldSpecies = ChampionsDex.species.get(Calculator.toID(old.species)),
+          newSpecies = ChampionsDex.species.get(Calculator.toID(name));
+        if (
+          (oldSpecies.baseSpecies || oldSpecies.name) ===
+          (newSpecies.baseSpecies || newSpecies.name)
+        ) {
+          next.points = { ...old.points };
+          next.nature = old.nature;
+          next.moves = [...old.moves];
+          next.item = old.item;
+        }
+        if (TeamTools.forms(old.species).some((s) => s.name === name)) {
+          Object.assign(next, TeamTools.switchForm(old, name));
+        }
+        state[side][state[side + "Index"]] = ChampionsRules.prepare(next);
+        state[side + "Move"] = 0;
+      } else if (move !== undefined) set.moves[Number(move)] = name;
+      else set[field] = name;
+      touchOwn(side);
+    } else if (field === "hp")
+      set.hp = BattleCore.clamp(
+        Math.floor(Number(el.value)),
+        1,
+        BattleCore.makePokemon({ ...set, hp: 0 }).maxHP(),
+      );
+    else if (field) {
+      set[field] = el.type === "checkbox" ? el.checked : el.value;
+      if (field === "nature") set.hp = 0;
+      touchOwn(side);
+    }
+    render();
+  });
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    applyTheme();
+    savePreferences();
+  });
+  document.getElementById("beginner-toggle").addEventListener("click", () => {
+    state.beginnerTips = !state.beginnerTips;
+    savePreferences();
+    render();
+  });
+  document
+    .getElementById("about-button")
+    .addEventListener("click", () => document.getElementById("info-dialog").showModal());
+  document
+    .getElementById("close-info")
+    .addEventListener("click", () => document.getElementById("info-dialog").close());
+  render();
+  MetaData.refresh(state.field.gameType, BuilderUI.updateMetaView);
+  setInterval(() => {
+    if (document.visibilityState === "visible")
+      MetaData.refresh(state.field.gameType, BuilderUI.updateMetaView);
+  }, 3600000);
 })();

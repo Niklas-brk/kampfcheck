@@ -1,22 +1,152 @@
 <!doctype html>
 <html lang="de">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#101c28">
-  <title>Kampfcheck – Dein Pokémon-Champions-Rechner</title>
-  <meta name="description" content="Deutscher Pokémon-Champions-Rechner für Einzel- und Doppelkampf: Team zusammenstellen, Initiative vergleichen und Schaden sowie Überlebenschancen berechnen.">
-  <link rel="icon" type="image/svg+xml" href="brand-mark.svg">
-  <script>try{if(JSON.parse(localStorage.getItem('kampfcheck-preferences-v1')||'{}').theme==='dark')document.documentElement.dataset.theme='dark';}catch{}</script>
-  <link rel="stylesheet" href="style.css">
-  <script defer src="vendor/calc-data.min.js"></script><script defer src="vendor/calc.min.js"></script><script defer src="german.js"></script><script defer src="item-names-de.js"></script><script defer src="core.js"></script><script defer src="champions-data.js"></script><script defer src="legality.js"></script><script defer src="item-effects.js"></script><script defer src="team-tools.js"></script><script defer src="item-icons.js"></script><script defer src="meta-snapshot.js"></script><script defer src="templates.js"></script><script defer src="meta.js"></script><script defer src="builder-ui.js"></script><script defer src="team-library.js"></script><script defer src="library-ui.js"></script><script defer src="app.js"></script>
-</head>
-<body>
- <header class="topbar"><a class="brand" href="./"><img class="brand-logo" src="brand-logo.svg" alt="Pokémon VGC – Kampfcheck Champions" width="336" height="80"></a><div class="header-right"><span class="format-pill" id="format-label">Doppelkampf · Level 50</span><button class="theme-toggle" id="theme-toggle" aria-pressed="false">☾ Darkmode</button></div></header>
- <main id="app"><div class="loading">Kampfdaten werden geladen …</div></main>
- <footer><span>Fanprojekt. Pokémon gehört Nintendo, Creatures und GAME FREAK.</span><a href="https://github.com/smogon/damage-calc" target="_blank" rel="noreferrer">Rechenbasis: Smogon · Champions</a><button id="about-button" class="text-button">Daten & Hinweise</button></footer>
- <dialog id="info-dialog"><div class="dialog-head"><h2>Was der Rechner berücksichtigt</h2><button class="icon-button" id="close-info" aria-label="Hinweise schließen">×</button></div><p>Champions-Modus von Smogon Damage Calc 0.12.0, Datenstand 19.09.2026. Level 50, bis zu 66 Statuspunkte insgesamt und 32 je Wert. Pokémon und Formen werden mit dem aktuellen Champions-Reglement abgeglichen. Attacken und Fähigkeiten sind pro Pokémon eingeschränkt. Datenstand und Quellen stehen unten; Teamklauseln und besondere Kampfsituationen müssen zusätzlich berücksichtigt werden.</p><p>Die Ergebnisse gelten für deine eingestellten Werte und einen erfolgreichen Treffer. Gegnerische Items, Wesen, Fähigkeiten und Punkte sind in der Teamvorschau unbekannt. Rückstoß, Folgeschaden durch Wetter oder Status und weitere Angriffe derselben Runde sind nicht in der Überlebenschance enthalten.</p><p>Mehrfachtreffer werden mit der gewählten Trefferzahl berechnet. Fokusgurt und Robustheit werden bei vollen KP und einem Treffer berücksichtigt. Manche Fähigkeiten, etwa Kostümspuk, und spezielle Attacken erfordern zusätzliche Vorsicht; entsprechende Ergebnisse werden gekennzeichnet. Zugfolgen durch Attacken wie Verzögerung oder Galanterie werden nicht simuliert.</p><p>Wetter, Terrain und Seiteneffekte stellst du auf den aktuellen Kampfzustand. „Ausgelöster Effekt“ aktiviert z. B. Bedroher; wenn du dessen Senkung bereits unter Stufen eingetragen hast, lasse den Schalter aus. Normal- und Mega-Formen schaltest du direkt am Pokémon um. Rot markiert durch das Wesen erhöhte Werte (+10 %), Blau gesenkte Werte (−10 %).</p><p>Team-Check: reine Typen-Abdeckung ohne Fähigkeiten, Items oder Kampfzustand. Meta-Daten: monatliche Showdown-Statistiken, aufbereitet von PokéKit; automatischer Abruf beim Öffnen höchstens einmal täglich bei geöffneter Seite. Datum und Reglement stehen jeweils dabei. Turnier-Vorlagen verlinken die Originalquelle; nicht veröffentlichte Statuspunkte sind Annahmen.</p><p>Verfügbare Pokémon: offizielles Reglement M-C, Stand 21.09.2026. Attacken, Fähigkeiten und Items: <a href="https://github.com/smogon/pokemon-showdown/tree/f10d6798f2ba5af92e55892c8c7063ca7b53c18a/data/mods/champions" target="_blank" rel="noreferrer">Pokémon Showdown – Champions</a>. Gespeicherte ältere Teams bleiben erhalten; unzulässige Einträge werden markiert und können vor einer Berechnung korrigiert werden.</p><p>Neue deutsche Itemnamen: <a href="https://www.pokewiki.de/Mega-Steine" target="_blank" rel="noreferrer">PokéWiki</a> (Lizenz und Einzelquellen in der <a href="item-names-de.js" target="_blank">Namensdatei</a>). Item-Icons: <a href="https://github.com/smogon/pokemon-showdown-client" target="_blank" rel="noreferrer">Pokémon Showdown</a>.</p><p>Deine benannten Teams und dein aktuelles Team bleiben in diesem Browser gespeichert, auch nach dem Schließen der Seite. Unter „Meine Teams“ kannst du sie direkt auswählen. Änderungen im Rechner überschreiben ein benanntes Team erst nach „Team speichern“. Benannte Gegnerteams bleiben unter „Gegnerteams“ gespeichert. Eine ungespeicherte gegnerische Vorschau und Feldeinstellungen werden beim Neuladen zurückgesetzt. Tempo- und Schadensanzeigen lassen sich einklappen; die Auswahl wird gespeichert.</p><p><a href="https://github.com/smogon/damage-calc" target="_blank" rel="noreferrer">Smogon Damage Calc (MIT)</a> · <a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">Deutsche Namen: PokéAPI (BSD)</a> · <a href="https://champions-news.pokemon-home.com/en/page/816.html" target="_blank" rel="noreferrer">Offizielles Reglement M-C</a></p></dialog>
- <dialog id="item-dialog" aria-label="Item auswählen"></dialog>
- <dialog id="save-team-dialog" aria-label="Team speichern"></dialog>
- <div id="toast" role="status" aria-live="polite"></div>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#101c28" />
+    <title>Kampfcheck – Dein Pokémon-Champions-Rechner</title>
+    <meta
+      name="description"
+      content="Deutscher Pokémon-Champions-Rechner für Einzel- und Doppelkampf: Team zusammenstellen, Initiative vergleichen und Schaden sowie Überlebenschancen berechnen."
+    />
+    <link rel="icon" type="image/svg+xml" href="brand-mark.svg" />
+    <script>
+      try {
+        if (JSON.parse(localStorage.getItem("kampfcheck-preferences-v1") || "{}").theme === "dark")
+          document.documentElement.dataset.theme = "dark";
+      } catch {}
+    </script>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="vendor/calc-data.min.js"></script>
+    <script defer src="vendor/calc.min.js"></script>
+    <script defer src="german.js"></script>
+    <script defer src="item-names-de.js"></script>
+    <script defer src="core.js"></script>
+    <script defer src="champions-data.js"></script>
+    <script defer src="legality.js"></script>
+    <script defer src="item-effects.js"></script>
+    <script defer src="team-tools.js"></script>
+    <script defer src="item-icons.js"></script>
+    <script defer src="meta-snapshot.js"></script>
+    <script defer src="templates.js"></script>
+    <script defer src="meta.js"></script>
+    <script defer src="view-helpers.js"></script>
+    <script defer src="beginner-tips.js"></script>
+    <script defer src="builder-ui.js"></script>
+    <script defer src="team-library.js"></script>
+    <script defer src="library-ui.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./"
+        ><img
+          class="brand-logo"
+          src="brand-logo.svg"
+          alt="Pokémon VGC – Kampfcheck Champions"
+          width="336"
+          height="80"
+      /></a>
+      <div class="header-right">
+        <button class="theme-toggle beginner-toggle" id="beginner-toggle" aria-pressed="false">
+          Anfängertipps
+        </button>
+        <span class="format-pill" id="format-label">Doppelkampf · Level 50</span
+        ><button class="theme-toggle" id="theme-toggle" aria-pressed="false">☾ Darkmode</button>
+      </div>
+    </header>
+    <main id="app"><div class="loading">Kampfdaten werden geladen …</div></main>
+    <footer>
+      <span>Fanprojekt. Pokémon gehört Nintendo, Creatures und GAME FREAK.</span
+      ><a href="https://github.com/smogon/damage-calc" target="_blank" rel="noreferrer"
+        >Rechenbasis: Smogon · Champions</a
+      ><button id="about-button" class="text-button">Daten & Hinweise</button>
+    </footer>
+    <dialog id="info-dialog">
+      <div class="dialog-head">
+        <h2>Was der Rechner berücksichtigt</h2>
+        <button class="icon-button" id="close-info" aria-label="Hinweise schließen">×</button>
+      </div>
+      <p>
+        Champions-Modus von Smogon Damage Calc 0.12.0, Datenstand 19.09.2026. Level 50, bis zu 66
+        Statuspunkte insgesamt und 32 je Wert. Pokémon und Formen werden mit dem aktuellen
+        Champions-Reglement abgeglichen. Attacken und Fähigkeiten sind pro Pokémon eingeschränkt.
+        Datenstand und Quellen stehen unten; Teamklauseln und besondere Kampfsituationen müssen
+        zusätzlich berücksichtigt werden.
+      </p>
+      <p>
+        Die Ergebnisse gelten für deine eingestellten Werte und einen erfolgreichen Treffer.
+        Gegnerische Items, Wesen, Fähigkeiten und Punkte sind in der Teamvorschau unbekannt.
+        Rückstoß, Folgeschaden durch Wetter oder Status und weitere Angriffe derselben Runde sind
+        nicht in der Überlebenschance enthalten.
+      </p>
+      <p>
+        Mehrfachtreffer werden mit der gewählten Trefferzahl berechnet. Fokusgurt und Robustheit
+        werden bei vollen KP und einem Treffer berücksichtigt. Manche Fähigkeiten, etwa Kostümspuk,
+        und spezielle Attacken erfordern zusätzliche Vorsicht; entsprechende Ergebnisse werden
+        gekennzeichnet. Zugfolgen durch Attacken wie Verzögerung oder Galanterie werden nicht
+        simuliert.
+      </p>
+      <p>
+        Wetter, Terrain und Seiteneffekte stellst du auf den aktuellen Kampfzustand. „Ausgelöster
+        Effekt“ aktiviert z. B. Bedroher; wenn du dessen Senkung bereits unter Stufen eingetragen
+        hast, lasse den Schalter aus. Normal- und Mega-Formen schaltest du direkt am Pokémon um. Rot
+        markiert durch das Wesen erhöhte Werte (+10 %), Blau gesenkte Werte (−10 %).
+      </p>
+      <p>
+        Team-Check: reine Typen-Abdeckung ohne Fähigkeiten, Items oder Kampfzustand. Meta-Daten:
+        monatliche Showdown-Statistiken, aufbereitet von PokéKit; automatischer Abruf beim Öffnen
+        höchstens einmal täglich bei geöffneter Seite. Datum und Reglement stehen jeweils dabei.
+        Turnier-Vorlagen verlinken die Originalquelle; nicht veröffentlichte Statuspunkte sind
+        Annahmen.
+      </p>
+      <p>
+        Verfügbare Pokémon: offizielles Reglement M-C, Stand 21.09.2026. Attacken, Fähigkeiten und
+        Items:
+        <a
+          href="https://github.com/smogon/pokemon-showdown/tree/f10d6798f2ba5af92e55892c8c7063ca7b53c18a/data/mods/champions"
+          target="_blank"
+          rel="noreferrer"
+          >Pokémon Showdown – Champions</a
+        >. Gespeicherte ältere Teams bleiben erhalten; unzulässige Einträge werden markiert und
+        können vor einer Berechnung korrigiert werden.
+      </p>
+      <p>
+        Neue deutsche Itemnamen:
+        <a href="https://www.pokewiki.de/Mega-Steine" target="_blank" rel="noreferrer">PokéWiki</a>
+        (Lizenz und Einzelquellen in der
+        <a href="item-names-de.js" target="_blank">Namensdatei</a>). Item-Icons:
+        <a href="https://github.com/smogon/pokemon-showdown-client" target="_blank" rel="noreferrer"
+          >Pokémon Showdown</a
+        >.
+      </p>
+      <p>
+        Deine benannten Teams und dein aktuelles Team bleiben in diesem Browser gespeichert, auch
+        nach dem Schließen der Seite. Unter „Meine Teams“ kannst du sie direkt auswählen. Änderungen
+        im Rechner überschreiben ein benanntes Team erst nach „Team speichern“. Benannte Gegnerteams
+        bleiben unter „Gegnerteams“ gespeichert. Eine ungespeicherte gegnerische Vorschau und
+        Feldeinstellungen werden beim Neuladen zurückgesetzt. Tempo- und Schadensanzeigen lassen
+        sich einklappen; die Auswahl wird gespeichert.
+      </p>
+      <p>
+        <a href="https://github.com/smogon/damage-calc" target="_blank" rel="noreferrer"
+          >Smogon Damage Calc (MIT)</a
+        >
+        ·
+        <a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer"
+          >Deutsche Namen: PokéAPI (BSD)</a
+        >
+        ·
+        <a
+          href="https://champions-news.pokemon-home.com/en/page/816.html"
+          target="_blank"
+          rel="noreferrer"
+          >Offizielles Reglement M-C</a
+        >
+      </p>
+    </dialog>
+    <dialog id="item-dialog" aria-label="Item auswählen"></dialog>
+    <dialog id="save-team-dialog" aria-label="Team speichern"></dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
 </html>

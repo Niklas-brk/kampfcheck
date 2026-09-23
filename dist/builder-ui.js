@@ -1,24 +1,465 @@
-(function(root){
- 'use strict';
- root.createKampfBuilderUI=function({state,esc,tr,sprite,types,fmt,onItem}){
-  const T=root.KampfTeam,K=root.KampfCore,G=K.G,C=root.calc,M=root.KampfMeta;
-  const Q=root.KampfLegality,E=root.KampfItemEffects;
-  const allItems=[...G.items].filter(i=>Q.canItem(i.name)).sort((a,b)=>tr('items',a.name).localeCompare(tr('items',b.name),'de'));
-  function itemIcon(name){const n=root.KampfItemIcons[C.toID(name)];return Number.isInteger(n)?`<span class="item-icon" role="img" aria-label="${esc(tr('items',name))}" style="background-position:-${n%16*24}px -${Math.floor(n/16)*24}px"></span>`:'<span class="item-icon no-item" aria-hidden="true">–</span>';}
-  function itemField(set,side){return `<div class="item-field"><span class="field-label">Item</span><button class="item-select" data-action="item-picker" data-side="${side}" aria-label="Item suchen: ${esc(set.item?tr('items',set.item):'Kein Item')}">${itemIcon(set.item)}<span>${esc(set.item?tr('items',set.item):'Kein Item')}</span><span class="search-glyph" aria-hidden="true">⌕</span></button></div>`;}
-  function natureField(set,side){const effect=T.natureEffect(set.nature);return `<div class="nature-field"><label><span class="field-label">Wesen</span><select data-side="${side}" data-field="nature" aria-label="Wesen">${Object.entries(T.natures).sort((a,b)=>a[1].localeCompare(b[1],'de')).map(([key,label])=>`<option value="${key}" ${set.nature===key?'selected':''}>${label}</option>`).join('')}</select></label><div class="nature-effect">${effect.plus?`<span class="nature-up">↑ ${T.statNames[effect.plus]} +10 %</span><span class="nature-down">↓ ${T.statNames[effect.minus]} −10 %</span>`:'<span class="neutral-nature">Neutral · keine Veränderung</span>'}</div></div>`;}
-  function statClass(set,key){const e=T.natureEffect(set.nature);return e.plus===key?'nature-up':e.minus===key?'nature-down':'';}
-  function formSwitch(set,side){const forms=T.forms(set.species);if(forms.length<2)return '';return `<div class="form-switch" role="group" aria-label="Pokémon-Form">${forms.map((s,i)=>`<button data-action="form" data-side="${side}" data-value="${esc(s.name)}" aria-pressed="${s.name===set.species}">${i===0?'Normalform':esc(tr('species',s.name)).replace(/^Mega-[^ ]+/,'Mega')}${i===0?'':T.megaItem(s.name)?itemIcon(T.megaItem(s.name)):''}</button>`).join('')}<p>Beim Wechsel zur Mega-Form werden Fähigkeit und Mega-Stein angepasst. Wesen, Punkte und Attacken bleiben erhalten.</p></div>`;}
-  let pickerSide='builder',category='all';
-  const dialog=document.getElementById('item-dialog');
-  function itemResults(){const query=dialog.querySelector('#item-search').value.trim().toLocaleLowerCase('de');const list=allItems.filter(i=>(category==='all'||E.entries[i.name]?.categories.includes(category))&&(tr('items',i.name)+' '+i.name+' '+(E.entries[i.name]?.description||'')+' '+(E.entries[i.name]?.categories||[]).map(c=>E.categories.find(x=>x.id===c)?.label).join(' ')).toLocaleLowerCase('de').includes(query));dialog.querySelector('#item-count').textContent=list.length+' Items';dialog.querySelector('#item-results').innerHTML=list.map(i=>`<button class="item-result" data-item="${esc(i.name)}">${itemIcon(i.name)}<span>${esc(tr('items',i.name))}</span><small>${esc(E.entries[i.name]?.description||i.name)}</small></button>`).join('')||'<p class="empty-result">Kein passendes Item. Versuche einen Namen, eine Wirkung oder eine andere Kategorie.</p>';}
-  function openItems(side){pickerSide=side;category='all';dialog.innerHTML=`<div class="dialog-head"><h2>Item auswählen</h2><button class="icon-button" data-close-items aria-label="Item-Auswahl schließen">×</button></div><label class="item-search-label">Items suchen<input id="item-search" type="search" placeholder="Name oder Wirkung: Heilung, Angriff, Status …" autocomplete="off"></label><div class="item-filters" role="group" aria-label="Item-Filter">${[['all','Alle'],...E.categories.map(c=>[c.id,c.label])].map(([v,n])=>`<button data-item-category="${v}" aria-pressed="${v==='all'}">${n}</button>`).join('')}</div><div class="item-list-head"><span id="item-count" aria-live="polite"></span><button class="text-button" data-item="">Kein Item</button></div><div id="item-results" class="item-results"></div>`;itemResults();dialog.showModal();dialog.querySelector('#item-search').focus();}
-  dialog.addEventListener('input',e=>{if(e.target.id==='item-search')itemResults();});
-  dialog.addEventListener('click',e=>{const close=e.target.closest('[data-close-items]'),filter=e.target.closest('[data-item-category]'),chosen=e.target.closest('[data-item]');if(close)dialog.close();if(filter){category=filter.dataset.itemCategory;dialog.querySelectorAll('[data-item-category]').forEach(b=>b.setAttribute('aria-pressed',String(b===filter)));itemResults();}if(chosen){dialog.close();onItem(pickerSide,chosen.dataset.item);}});
-  function analysis(team){const rows=T.typeRows(team),risks=rows.filter(r=>r.weak>=2).sort((a,b)=>(b.weak*2+b.quad-b.resist-b.immune)-(a.weak*2+a.quad-a.resist-a.immune));const notes=T.teamNotes(team,state.field.gameType);const feed=M.feeds[state.field.gameType];const threats=feed.pokemon.slice(0,20).filter(p=>G.species.get(C.toID(p.name))&&Q.available(p.name)).map(p=>{const ts=G.species.get(C.toID(p.name)).types;const vulnerable=team.filter(s=>ts.some(t=>T.typeFactor(t,s)>=2));return{p,vulnerable};}).filter(x=>x.vulnerable.length>=3).slice(0,4);return `<div class="team-analysis"><section class="card planning-card"><span class="eyebrow">Team-Check</span><h2>Wo dein Team unter Druck kommt</h2><p class="panel-intro">Typen der ausgewählten Formen. Fähigkeiten, Items und Kampfzustand sind hier nicht eingerechnet – konkrete Treffer prüfst du im Rechner.</p><div class="risk-grid">${risks.slice(0,3).map(r=>`<article class="risk-card"><span class="type-tag type-${r.type}">${types[r.type]}</span><strong>${r.weak} von 6 anfällig</strong><span>${r.quad?r.quad+' mit 4×-Schwäche · ':''}${r.resist} resistent · ${r.immune} immun</span><p>${r.resist+r.immune===0?'Kein typischer Wechselpartner über den Typ. Ein Pokémon mit Resistenz oder Immunität kann diese Lücke schließen.':'Halte deine resistenten oder immunen Wechselpartner für diese Angriffe bereit.'}</p></article>`).join('')||'<p>Keine gemeinsame Typenschwäche von mindestens zwei Pokémon. Prüfe trotzdem konkrete Angreifer und ihre Coverage.</p>'}</div>${notes.length?`<ul class="team-tips">${notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:''}${threats.length?`<h3>Häufige Gegner zum Gegenprüfen</h3><p class="small-note">Aus ${esc(feed.label)} · ${esc(feed.month)}. Mindestens ein Typ des jeweiligen Gegners trifft mehrere deiner Pokémon sehr effektiv; das ist keine Siegprognose.</p><div class="threat-list">${threats.map(({p,vulnerable})=>`<div>${sprite(p.name)}<span><b>${esc(tr('species',p.name))}</b><small>${vulnerable.length} anfällig: ${vulnerable.map(s=>esc(tr('species',s.species))).join(', ')}</small></span></div>`).join('')}</div>`:''}</section><section class="card planning-card"><h2>Alle Typen im Überblick</h2><p class="panel-intro">Angreifender Typ links · 0× immun · ½× resistent · 2× / 4× anfällig</p><div class="type-table-scroll"><table class="type-table"><thead><tr><th>Angriffstyp</th>${team.map(s=>`<th>${sprite(s.species)}<span>${esc(tr('species',s.species))}</span></th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr><th><span class="type-tag type-${r.type}">${types[r.type]}</span></th>${r.factors.map(f=>`<td class="factor-${f===0?'immune':f<1?'resist':f>1?'weak':'neutral'}">${f===.25?'¼':f===.5?'½':f}×</td>`).join('')}</tr>`).join('')}</tbody></table></div></section></div>`;}
-  function sourceDate(s){return new Date(s+'-01T12:00:00').toLocaleDateString('de-DE',{month:'long',year:'numeric'});}
-  function metaView(){const mode=state.field.gameType,d=M.feeds[mode],available=d.pokemon.filter(p=>G.species.get(C.toID(p.name))&&Q.available(p.name)),templates=(root.KampfTemplates?.teams||[]).filter(t=>mode==='Doubles'&&t.sets.every(s=>!Q.validate(s)));return `<div id="meta-content"><section class="card planning-card"><div class="section-heading"><div><span class="eyebrow">${mode==='Singles'?'Einzelkampf':'Doppelkampf'} · Meta</span><h2>Was häufig gespielt wird</h2></div><button class="secondary-btn" data-action="refresh-meta" ${M.status[mode]==='loading'?'disabled':''}>${M.status[mode]==='loading'?'Wird aktualisiert …':'Jetzt aktualisieren'}</button></div><div class="meta-status"><strong>${esc(sourceDate(d.month))} · ${esc(d.label)}</strong><span>${Number(d.battles).toLocaleString('de-DE')} Ladder-Kämpfe · Gewichtung ${Number(d.cutoff)}</span><span>${M.checked[mode]?`Zuletzt geprüft: ${new Date(M.checked[mode]).toLocaleString('de-DE')}. `:''}${M.status[mode]==='offline'?'Quelle momentan nicht erreichbar – letzter gespeicherter Stand.':M.status[mode]==='live'?'Quelle erfolgreich geprüft.':'Gespeicherter Datenstand.'} Automatische Prüfung beim Öffnen, danach täglich bei geöffneter Seite.</span></div><p class="panel-intro">Monatliche Showdown-Nutzung, keine Live-Rangliste aus dem Spiel. Neue Reglements können eine andere Meta haben. Quellen: <a href="https://www.smogon.com/stats/${esc(d.month)}/" target="_blank" rel="noreferrer">Smogon / Pokémon Showdown</a> · <a href="https://poke.itlibra.com/opendata/" target="_blank" rel="noreferrer">PokéKit Open Data</a>.</p><div class="usage-grid">${available.slice(0,12).map(p=>`<details class="usage-card"><summary>${sprite(p.name)}<span><b>${esc(tr('species',p.name))}</b><small>${fmt(p.usage)} % Nutzung</small></span></summary><div class="usage-detail"><h4>Häufige Items</h4>${p.items.slice(0,3).map(i=>{const n=G.items.get(C.toID(i.id))?.name;return n?`<div>${itemIcon(n)}<span>${esc(tr('items',n))}</span><b>${fmt(i.pct)} %</b></div>`:'';}).join('')}<h4>Häufige Partner</h4><p>${p.teammates.slice(0,4).map(t=>esc(tr('species',t.name))).join(' · ')}</p><button class="secondary-btn" data-action="meta-set" data-value="${esc(p.id)}">Als Set auf Platz ${state.builderIndex+1} testen</button><small>Häufigste Einzelbausteine kombiniert; kein belegtes Originalset.</small></div></details>`).join('')}</div></section><section class="card planning-card"><h2>Teamvorschläge aus der Statistik</h2><p class="panel-intro">Ein häufiges Pokémon mit häufigen Partnern als Ausgangspunkt. Diese Entwürfe sind aus Einzelstatistiken kombiniert, keine belegten Turnierteams. Alle Sets und Punkte kannst du anpassen.</p><div class="template-grid">${M.suggestions(mode).map((s,i)=>`<article class="template-card"><span class="tag">Statistik-Entwurf · ${esc(d.month)}</span><h3>Rund um ${esc(tr('species',s.seed))}</h3><div class="template-roster">${s.pokemon.map(p=>`<span>${sprite(p.name)}<small>${esc(tr('species',p.name))}</small></span>`).join('')}</div><button class="secondary-btn" data-action="meta-team" data-index="${i}">Als Team-Entwurf laden</button></article>`).join('')}</div></section><section class="card planning-card"><h2>Turnier-Vorlagen</h2>${templates.length?`<p class="panel-intro">Offiziell veröffentlichte Worlds-Teams. Pokémon, Items, Fähigkeiten, Wesen und Attacken stammen aus der Quelle. <b>Die Statuspunkte sind dort nicht veröffentlicht und werden als anpassbare Annahme ergänzt.</b> Historisches Reglement beachten.</p><div class="template-grid">${templates.map(t=>`<article class="template-card"><span class="tag">${esc(t.placement)} · ${esc(t.date)}</span><h3>${esc(t.player)}</h3><p>${esc(t.event)} · ${esc(t.format)}</p><div class="template-roster">${t.sets.map(s=>`<span>${sprite(s.species)}<small>${esc(tr('species',s.species))}</small>${itemIcon(s.item)}</span>`).join('')}</div><a href="${esc(t.source)}" target="_blank" rel="noreferrer">Originalteam ansehen ↗</a><button class="secondary-btn" data-action="template" data-value="${esc(t.id)}">Als Team-Entwurf laden</button></article>`).join('')}</div>`:'<p class="panel-intro">Worlds-VGC wird im Doppel gespielt. Wechsel zu Doppelkampf, um die offiziellen Turnier-Vorlagen zu sehen. Für Einzel findest du oben Statistik-Entwürfe.</p>'}</section></div>`;}
-  function updateMetaView(){const target=document.getElementById('meta-content');if(target){const shell=document.createElement('div');shell.innerHTML=metaView();target.replaceWith(shell.firstElementChild);}}
-  return{itemIcon,itemField,natureField,statClass,formSwitch,openItems,analysis,metaView,updateMetaView};
- };
+/** Ansichten für den Team-Baukasten: Item-Suche, Wesen, Formen, Typencheck und Meta-Vorlagen.
+ * Die Factory erhält ihre Abhängigkeiten und Rückrufe vom App-Controller.
+ */
+(function (root) {
+  "use strict";
+  const html = root.KampfView.html;
+  root.createKampfBuilderUI = function ({ state, esc, tr, sprite, types, fmt, onItem }) {
+    const T = root.KampfTeam,
+      K = root.KampfCore,
+      G = K.G,
+      C = root.calc,
+      M = root.KampfMeta;
+    const Q = root.KampfLegality,
+      E = root.KampfItemEffects;
+    const allItems = [...G.items]
+      .filter((i) => Q.canItem(i.name))
+      .sort((a, b) => tr("items", a.name).localeCompare(tr("items", b.name), "de"));
+    function itemIcon(name) {
+      const n = root.KampfItemIcons[C.toID(name)];
+      return Number.isInteger(n)
+        ? html`<span
+            class="item-icon"
+            role="img"
+            aria-label="${esc(tr("items", name))}"
+            style="background-position:-${(n % 16) * 24}px -${Math.floor(n / 16) * 24}px"
+          ></span>`
+        : '<span class="item-icon no-item" aria-hidden="true">–</span>';
+    }
+    function itemField(set, side) {
+      return html`<div class="item-field">
+        <span class="field-label">Item</span
+        ><button
+          class="item-select"
+          data-action="item-picker"
+          data-side="${side}"
+          aria-label="Item suchen: ${esc(set.item ? tr("items", set.item) : "Kein Item")}"
+        >
+          ${itemIcon(set.item)}<span>${esc(set.item ? tr("items", set.item) : "Kein Item")}</span
+          ><span class="search-glyph" aria-hidden="true">⌕</span>
+        </button>
+      </div>`;
+    }
+    function natureField(set, side) {
+      const effect = T.natureEffect(set.nature);
+      return html`<div class="nature-field">
+        <label
+          ><span class="field-label">Wesen</span
+          ><select data-side="${side}" data-field="nature" aria-label="Wesen">
+            ${Object.entries(T.natures)
+              .sort((a, b) => a[1].localeCompare(b[1], "de"))
+              .map(
+                ([key, label]) =>
+                  html`<option value="${key}" ${set.nature === key ? "selected" : ""}>
+                    ${label}
+                  </option>`,
+              )
+              .join("")}
+          </select></label
+        >
+        <div class="nature-effect">
+          ${effect.plus ? html`<span class="nature-up">↑ ${T.statNames[effect.plus]} +10 %</span><span class="nature-down">↓ ${T.statNames[effect.minus]} −10 %</span>` : '<span class="neutral-nature">Neutral · keine Veränderung</span>'}
+        </div>
+      </div>`;
+    }
+    function statClass(set, key) {
+      const e = T.natureEffect(set.nature);
+      return e.plus === key ? "nature-up" : e.minus === key ? "nature-down" : "";
+    }
+    function formSwitch(set, side) {
+      const forms = T.forms(set.species);
+      if (forms.length < 2) return "";
+      return html`<div class="form-switch" role="group" aria-label="Pokémon-Form">
+        ${forms.map((s, i) => html`<button data-action="form" data-side="${side}" data-value="${esc(s.name)}" aria-pressed="${s.name === set.species}">${i === 0 ? "Normalform" : esc(tr("species", s.name)).replace(/^Mega-[^ ]+/, "Mega")}${i === 0 ? "" : T.megaItem(s.name) ? itemIcon(T.megaItem(s.name)) : ""}</button>`).join("")}
+        <p>
+          Beim Wechsel zur Mega-Form werden Fähigkeit und Mega-Stein angepasst. Wesen, Punkte und
+          Attacken bleiben erhalten.
+        </p>
+      </div>`;
+    }
+    let pickerSide = "builder",
+      category = "all";
+    const dialog = document.getElementById("item-dialog");
+    // Namen, Kategorien und Beschreibungen lassen sich gemeinsam durchsuchen.
+    function itemResults() {
+      const query = dialog.querySelector("#item-search").value.trim().toLocaleLowerCase("de");
+      const list = allItems.filter(
+        (i) =>
+          (category === "all" || E.entries[i.name]?.categories.includes(category)) &&
+          (
+            tr("items", i.name) +
+            " " +
+            i.name +
+            " " +
+            (E.entries[i.name]?.description || "") +
+            " " +
+            (E.entries[i.name]?.categories || [])
+              .map((c) => E.categories.find((x) => x.id === c)?.label)
+              .join(" ")
+          )
+            .toLocaleLowerCase("de")
+            .includes(query),
+      );
+      dialog.querySelector("#item-count").textContent = list.length + " Items";
+      dialog.querySelector("#item-results").innerHTML =
+        list
+          .map(
+            (i) =>
+              html`<button class="item-result" data-item="${esc(i.name)}">
+                ${itemIcon(i.name)}<span>${esc(tr("items", i.name))}</span
+                ><small>${esc(E.entries[i.name]?.description || i.name)}</small>
+              </button>`,
+          )
+          .join("") ||
+        '<p class="empty-result">Kein passendes Item. Versuche einen Namen, eine Wirkung oder eine andere Kategorie.</p>';
+    }
+    function openItems(side) {
+      pickerSide = side;
+      category = "all";
+      dialog.innerHTML = html`<div class="dialog-head">
+          <h2>Item auswählen</h2>
+          <button class="icon-button" data-close-items aria-label="Item-Auswahl schließen">
+            ×
+          </button>
+        </div>
+        <label class="item-search-label"
+          >Items suchen<input
+            id="item-search"
+            type="search"
+            placeholder="Name oder Wirkung: Heilung, Angriff, Status …"
+            autocomplete="off"
+        /></label>
+        <div class="item-filters" role="group" aria-label="Item-Filter">
+          ${[["all", "Alle"], ...E.categories.map((c) => [c.id, c.label])].map(([v, n]) => html`<button data-item-category="${v}" aria-pressed="${v === "all"}">${n}</button>`).join("")}
+        </div>
+        <div class="item-list-head">
+          <span id="item-count" aria-live="polite"></span
+          ><button class="text-button" data-item="">Kein Item</button>
+        </div>
+        <div id="item-results" class="item-results"></div>`;
+      itemResults();
+      dialog.showModal();
+      dialog.querySelector("#item-search").focus();
+    }
+    dialog.addEventListener("input", (e) => {
+      if (e.target.id === "item-search") itemResults();
+    });
+    dialog.addEventListener("click", (e) => {
+      const close = e.target.closest("[data-close-items]"),
+        filter = e.target.closest("[data-item-category]"),
+        chosen = e.target.closest("[data-item]");
+      if (close) dialog.close();
+      if (filter) {
+        category = filter.dataset.itemCategory;
+        dialog
+          .querySelectorAll("[data-item-category]")
+          .forEach((b) => b.setAttribute("aria-pressed", String(b === filter)));
+        itemResults();
+      }
+      if (chosen) {
+        dialog.close();
+        onItem(pickerSide, chosen.dataset.item);
+      }
+    });
+    function analysis(team) {
+      const rows = T.typeRows(team),
+        risks = rows
+          .filter((r) => r.weak >= 2)
+          .sort(
+            (a, b) =>
+              b.weak * 2 +
+              b.quad -
+              b.resist -
+              b.immune -
+              (a.weak * 2 + a.quad - a.resist - a.immune),
+          );
+      const notes = T.teamNotes(team, state.field.gameType);
+      const feed = M.feeds[state.field.gameType];
+      const threats = feed.pokemon
+        .slice(0, 20)
+        .filter((p) => G.species.get(C.toID(p.name)) && Q.available(p.name))
+        .map((p) => {
+          const ts = G.species.get(C.toID(p.name)).types;
+          const vulnerable = team.filter((s) => ts.some((t) => T.typeFactor(t, s) >= 2));
+          return { p, vulnerable };
+        })
+        .filter((x) => x.vulnerable.length >= 3)
+        .slice(0, 4);
+      return html`<div class="team-analysis">
+        <section class="card planning-card">
+          <span class="eyebrow">Team-Check</span>
+          <h2>Wo dein Team unter Druck kommt</h2>
+          <p class="panel-intro">
+            Typen der ausgewählten Formen. Fähigkeiten, Items und Kampfzustand sind hier nicht
+            eingerechnet – konkrete Treffer prüfst du im Rechner.
+          </p>
+          <div class="risk-grid">
+            ${
+              risks
+                .slice(0, 3)
+                .map(
+                  (r) =>
+                    html`<article class="risk-card">
+                      <span class="type-tag type-${r.type}">${types[r.type]}</span
+                      ><strong>${r.weak} von 6 anfällig</strong
+                      ><span
+                        >${r.quad ? r.quad + " mit 4×-Schwäche · " : ""}${r.resist} resistent ·
+                        ${r.immune} immun</span
+                      >
+                      <p>
+                        ${r.resist + r.immune === 0 ? "Kein typischer Wechselpartner über den Typ. Ein Pokémon mit Resistenz oder Immunität kann diese Lücke schließen." : "Halte deine resistenten oder immunen Wechselpartner für diese Angriffe bereit."}
+                      </p>
+                    </article>`,
+                )
+                .join("") ||
+              "<p>Keine gemeinsame Typenschwäche von mindestens zwei Pokémon. Prüfe trotzdem konkrete Angreifer und ihre Coverage.</p>"
+            }
+          </div>
+          ${
+            notes.length
+              ? html`<ul class="team-tips">
+                  ${notes.map((n) => html`<li>${esc(n)}</li>`).join("")}
+                </ul>`
+              : ""
+          }${
+            threats.length
+              ? html`<h3>Häufige Gegner zum Gegenprüfen</h3>
+                  <p class="small-note">
+                    Aus ${esc(feed.label)} · ${esc(feed.month)}. Mindestens ein Typ des jeweiligen
+                    Gegners trifft mehrere deiner Pokémon sehr effektiv; das ist keine Siegprognose.
+                  </p>
+                  <div class="threat-list">
+                    ${threats
+                      .map(
+                        ({ p, vulnerable }) =>
+                          html`<div>
+                            ${sprite(p.name)}<span
+                              ><b>${esc(tr("species", p.name))}</b
+                              ><small
+                                >${vulnerable.length} anfällig:
+                                ${vulnerable.map((s) => esc(tr("species", s.species))).join(", ")}</small
+                              ></span
+                            >
+                          </div>`,
+                      )
+                      .join("")}
+                  </div>`
+              : ""
+          }
+        </section>
+        <section class="card planning-card">
+          <h2>Alle Typen im Überblick</h2>
+          <p class="panel-intro">
+            Angreifender Typ links · 0× immun · ½× resistent · 2× / 4× anfällig
+          </p>
+          <div class="type-table-scroll">
+            <table class="type-table">
+              <thead>
+                <tr>
+                  <th>Angriffstyp</th>
+                  ${team.map((s) => html`<th>${sprite(s.species)}<span>${esc(tr("species", s.species))}</span></th>`).join("")}
+                </tr>
+              </thead>
+              <tbody>
+                ${rows
+                  .map(
+                    (r) =>
+                      html`<tr>
+                        <th><span class="type-tag type-${r.type}">${types[r.type]}</span></th>
+                        ${r.factors.map((f) => html`<td class="factor-${f === 0 ? "immune" : f < 1 ? "resist" : f > 1 ? "weak" : "neutral"}">${f === 0.25 ? "¼" : f === 0.5 ? "½" : f}×</td>`).join("")}
+                      </tr>`,
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>`;
+    }
+    function sourceDate(s) {
+      return new Date(s + "-01T12:00:00").toLocaleDateString("de-DE", {
+        month: "long",
+        year: "numeric",
+      });
+    }
+    function metaView() {
+      const mode = state.field.gameType,
+        d = M.feeds[mode],
+        available = d.pokemon.filter((p) => G.species.get(C.toID(p.name)) && Q.available(p.name)),
+        templates = (root.KampfTemplates?.teams || []).filter(
+          (t) => mode === "Doubles" && t.sets.every((s) => !Q.validate(s)),
+        );
+      return html`<div id="meta-content">
+        <section class="card planning-card">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow"
+                >${mode === "Singles" ? "Einzelkampf" : "Doppelkampf"} · Meta</span
+              >
+              <h2>Was häufig gespielt wird</h2>
+            </div>
+            <button
+              class="secondary-btn"
+              data-action="refresh-meta"
+              ${M.status[mode] === "loading" ? "disabled" : ""}
+            >
+              ${M.status[mode] === "loading" ? "Wird aktualisiert …" : "Jetzt aktualisieren"}
+            </button>
+          </div>
+          <div class="meta-status">
+            <strong>${esc(sourceDate(d.month))} · ${esc(d.label)}</strong
+            ><span
+              >${Number(d.battles).toLocaleString("de-DE")} Ladder-Kämpfe · Gewichtung
+              ${Number(d.cutoff)}</span
+            ><span
+              >${M.checked[mode] ? `Zuletzt geprüft: ${new Date(M.checked[mode]).toLocaleString("de-DE")}. ` : ""}${M.status[mode] === "offline" ? "Quelle momentan nicht erreichbar – letzter gespeicherter Stand." : M.status[mode] === "live" ? "Quelle erfolgreich geprüft." : "Gespeicherter Datenstand."}
+              Automatische Prüfung beim Öffnen, danach täglich bei geöffneter Seite.</span
+            >
+          </div>
+          <p class="panel-intro">
+            Monatliche Showdown-Nutzung, keine Live-Rangliste aus dem Spiel. Neue Reglements können
+            eine andere Meta haben. Quellen:
+            <a href="https://www.smogon.com/stats/${esc(d.month)}/" target="_blank" rel="noreferrer"
+              >Smogon / Pokémon Showdown</a
+            >
+            ·
+            <a href="https://poke.itlibra.com/opendata/" target="_blank" rel="noreferrer"
+              >PokéKit Open Data</a
+            >.
+          </p>
+          <div class="usage-grid">
+            ${available
+              .slice(0, 12)
+              .map(
+                (p) =>
+                  html`<details class="usage-card">
+                    <summary>
+                      ${sprite(p.name)}<span
+                        ><b>${esc(tr("species", p.name))}</b
+                        ><small>${fmt(p.usage)} % Nutzung</small></span
+                      >
+                    </summary>
+                    <div class="usage-detail">
+                      <h4>Häufige Items</h4>
+                      ${p.items
+                        .slice(0, 3)
+                        .map((i) => {
+                          const n = G.items.get(C.toID(i.id))?.name;
+                          return n
+                            ? html`<div>
+                                ${itemIcon(n)}<span>${esc(tr("items", n))}</span
+                                ><b>${fmt(i.pct)} %</b>
+                              </div>`
+                            : "";
+                        })
+                        .join("")}
+                      <h4>Häufige Partner</h4>
+                      <p>
+                        ${p.teammates
+                          .slice(0, 4)
+                          .map((t) => esc(tr("species", t.name)))
+                          .join(" · ")}
+                      </p>
+                      <button
+                        class="secondary-btn"
+                        data-action="meta-set"
+                        data-value="${esc(p.id)}"
+                      >
+                        Als Set auf Platz ${state.builderIndex + 1} testen</button
+                      ><small
+                        >Häufigste Einzelbausteine kombiniert; kein belegtes Originalset.</small
+                      >
+                    </div>
+                  </details>`,
+              )
+              .join("")}
+          </div>
+        </section>
+        <section class="card planning-card">
+          <h2>Teamvorschläge aus der Statistik</h2>
+          <p class="panel-intro">
+            Ein häufiges Pokémon mit häufigen Partnern als Ausgangspunkt. Diese Entwürfe sind aus
+            Einzelstatistiken kombiniert, keine belegten Turnierteams. Alle Sets und Punkte kannst
+            du anpassen.
+          </p>
+          <div class="template-grid">
+            ${M.suggestions(mode)
+              .map(
+                (s, i) =>
+                  html`<article class="template-card">
+                    <span class="tag">Statistik-Entwurf · ${esc(d.month)}</span>
+                    <h3>Rund um ${esc(tr("species", s.seed))}</h3>
+                    <div class="template-roster">
+                      ${s.pokemon.map((p) => html`<span>${sprite(p.name)}<small>${esc(tr("species", p.name))}</small></span>`).join("")}
+                    </div>
+                    <button class="secondary-btn" data-action="meta-team" data-index="${i}">
+                      Als Team-Entwurf laden
+                    </button>
+                  </article>`,
+              )
+              .join("")}
+          </div>
+        </section>
+        <section class="card planning-card">
+          <h2>Turnier-Vorlagen</h2>
+          ${
+            templates.length
+              ? html`<p class="panel-intro">
+                    Offiziell veröffentlichte Worlds-Teams. Pokémon, Items, Fähigkeiten, Wesen und
+                    Attacken stammen aus der Quelle.
+                    <b
+                      >Die Statuspunkte sind dort nicht veröffentlicht und werden als anpassbare
+                      Annahme ergänzt.</b
+                    >
+                    Historisches Reglement beachten.
+                  </p>
+                  <div class="template-grid">
+                    ${templates
+                      .map(
+                        (t) =>
+                          html`<article class="template-card">
+                            <span class="tag">${esc(t.placement)} · ${esc(t.date)}</span>
+                            <h3>${esc(t.player)}</h3>
+                            <p>${esc(t.event)} · ${esc(t.format)}</p>
+                            <div class="template-roster">
+                              ${t.sets.map((s) => html`<span>${sprite(s.species)}<small>${esc(tr("species", s.species))}</small>${itemIcon(s.item)}</span>`).join("")}
+                            </div>
+                            <a href="${esc(t.source)}" target="_blank" rel="noreferrer"
+                              >Originalteam ansehen ↗</a
+                            ><button
+                              class="secondary-btn"
+                              data-action="template"
+                              data-value="${esc(t.id)}"
+                            >
+                              Als Team-Entwurf laden
+                            </button>
+                          </article>`,
+                      )
+                      .join("")}
+                  </div>`
+              : '<p class="panel-intro">Worlds-VGC wird im Doppel gespielt. Wechsel zu Doppelkampf, um die offiziellen Turnier-Vorlagen zu sehen. Für Einzel findest du oben Statistik-Entwürfe.</p>'
+          }
+        </section>
+      </div>`;
+    }
+    function updateMetaView() {
+      const target = document.getElementById("meta-content");
+      if (target) {
+        const shell = document.createElement("div");
+        shell.innerHTML = metaView();
+        target.replaceWith(shell.firstElementChild);
+      }
+    }
+    return {
+      itemIcon,
+      itemField,
+      natureField,
+      statClass,
+      formSwitch,
+      openItems,
+      analysis,
+      metaView,
+      updateMetaView,
+    };
+  };
 })(window);

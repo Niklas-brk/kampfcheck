@@ -1,46 +1,47 @@
 # Kampfcheck
 
-Deutscher Pokémon-Champions-Rechner für Einzel- und Doppelkampf, mit eigener Windows-App.
+Deutscher Pokémon-Champions-Rechner für Einzel- und Doppelkampf, mit eigener Windows-App. Aktuelle Version: **1.2.1**.
 
 - Initiative, Schaden und Überlebenschancen vergleichen; Ergebnisse einzeln einklappen.
 - Eigene Teams und Gegnerteams benennen, speichern und wieder auswählen.
-- VGC-Logo und App-Symbol im Pokémon-Stil.
+- Pokémon-Look mit Rot, Blau und Gelb, hellen Karten und dunkelblauem Darkmode; passendes VGC-Logo und App-Symbol.
 - Wesen mit farbigen Statusänderungen, Normal-/Mega-Formen und durchsuchbare Items mit Icons.
 - Item-Filter nach Heilung, Stärke, Schutz, Initiative, Status, Taktik, Beeren und Mega-Steinen; Suche nach Namen oder Wirkung.
 - Pokémon-Auswahl nach Reglement M-C, mit artbezogenen Champions-Attacken und Fähigkeiten. Unzulässige ältere Sets werden markiert; ihre gespeicherten Daten bleiben lesbar.
 - Darkmode, Typencheck, Meta-Daten und Turnier-Vorlagen mit Quellen.
+- Optional einschaltbare Anfängertipps zu Initiative, Schaden, Teambau und gespeicherten Teams.
 
-## Windows-App
+## Testversion weitergeben
 
-Die App wird ohne Administratorrechte installiert. Benötigt werden Windows 10/11 (64 Bit), PowerShell und für den ersten Build eine Internetverbindung. Die festgelegte Electron-Version wird aus den offiziellen GitHub-Releases geladen und anhand der dort veröffentlichten SHA-256-Prüfsumme geprüft.
+Zum Weitergeben über Discord ist nur die kleine Datei `release/Testversion/Kampfcheck-1.2.1-Test-Setup.exe` nötig, bei Bedarf zusammen mit `TESTVERSION-LESEN.txt` aus demselben Ordner. Das Setup ist ungefähr 0,42 MB groß. Es installiert die App für den aktuellen Benutzer unter Windows 10/11 (x64), ohne Administratorrechte. Bei der ersten Installation lädt es die festgelegte Electron-Laufzeit 44.4.3 aus dem offiziellen GitHub-Release herunter (etwa 151 MB) und prüft deren SHA-256-Prüfsumme. Dafür wird eine Internetverbindung benötigt.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File desktop/build-windows.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File desktop/install-windows.ps1
-```
+Das Setup enthält die minimierten Programmdateien in einem ASAR-Archiv. Das lesbare Entwicklungsprojekt, JavaScript-Quellkommentare, Source Maps, Git-Historie, persönliche Teams und Benutzerprofile werden nicht mitgegeben. **ASAR und Minimierung sind keine Verschlüsselung:** Der lokal ausführbare App-Code bleibt technisch auslesbar. Das private GitHub-Repository muss zum Testen weder geteilt noch zugänglich gemacht werden.
 
 Danach startet **Kampfcheck** über das Symbol auf dem Desktop oder im Startmenü. Node.js und ein laufender Entwicklungsserver sind für die installierte App nicht erforderlich. Die Berechnungen und gebündelten Daten funktionieren auch ohne Internet; Pokémon-Bilder, Web-Schriften und aktuelle Meta-Daten benötigen eine Verbindung.
 
 Die App verwendet einen eigenen lokalen Datenspeicher unter `%APPDATA%/Kampfcheck`. Teams aus einem Browser werden nicht automatisch übernommen. Einzelne eigene Teams lassen sich mit der vorhandenen Export-/Importfunktion übertragen. Teamdaten werden nicht mit dem Quellcode oder GitHub synchronisiert.
 
-## Im Browser entwickeln
+## Entwickeln und bauen
 
-Mit einer aktuellen Node.js-Version:
-
-```sh
-node scripts/serve.mjs
-```
-
-Dann `http://127.0.0.1:4173` öffnen. Es gibt keinen zusätzlichen Build-Schritt für die Weboberfläche; die editierbaren HTML-, CSS- und JavaScript-Dateien liegen in `dist/`.
+Benötigt werden Node.js 24+ und pnpm. Im Projektordner:
 
 ```sh
-node scripts/verify.cjs
-node scripts/verify-team.cjs
-node scripts/verify-library.cjs
-node scripts/verify-opponents.cjs
-node scripts/verify-item-effects.cjs
-node scripts/verify-legality.cjs
+pnpm install
+pnpm start
 ```
+
+Dann `http://127.0.0.1:4173` öffnen. Die editierbaren HTML-, CSS- und JavaScript-Quellen liegen in `dist/`. Für diese lokale Browseransicht ist kein zusätzlicher Build nötig. Der Code ist nach Aufgaben gegliedert und an den wichtigen Schnittstellen auf Deutsch kommentiert.
+
+```sh
+pnpm test
+pnpm format
+pnpm run build:windows
+pnpm run test:package
+pnpm run install:windows
+pnpm run build:test
+```
+
+Die Windows-Befehle benötigen Windows PowerShell. `build:windows` erstellt eine vollständige Windows-Ausgabe, `install:windows` installiert das vorbereitete App-Paket mit Verknüpfungen. `build:test` erzeugt das kleine Setup zum Weitergeben und benötigt zusätzlich NSIS 3.12. Die Modulübersicht, die NSIS-Einrichtung und der Ablauf für neue Versionen stehen in [ENTWICKLUNG.md](ENTWICKLUNG.md).
 
 ## Privatsphäre
 
@@ -56,6 +57,6 @@ Der geprüfte Verfügbarkeitssnapshot steht in `dist/champions-data.js`. Er komb
 
 Mit Node.js 24+ lässt sich der Snapshot über `node scripts/refresh-champions-data.mjs <showdown-commit-sha>` erneuern. Die offizielle Formzuordnung liegt unter `scripts/data/official-regulation-mc.json`; ändert sich die offizielle Liste, stoppt das Skript, bis die Zuordnung geprüft wurde. Ein neues Reglement erfordert eine bewusste Datenaktualisierung. Aktuelle Meta-Statistiken überschreiben diese Regeln nicht.
 
-App-Updates werden in einem neuen Versionsordner installiert; der Datenspeicher bleibt unter demselben App-Namen erhalten. Vor dem Start der aktualisierten Version die bisherige App schließen. Vorhandene Versionsordner werden nicht automatisch gelöscht.
+App-Updates werden in einem neuen Versionsordner installiert; der Datenspeicher bleibt unter demselben App-Namen erhalten. Vor dem Start der aktualisierten Version die bisherige App schließen. Vorhandene Versionsordner werden nicht automatisch gelöscht. Ein anderer Build überschreibt keine bereits installierte Ausgabe mit derselben Versionsnummer; für neue verteilte Builds muss die Version erhöht werden.
 
 Siehe [THIRD_PARTY.md](THIRD_PARTY.md) für Quellen und Rechte. Inoffizielles Fanprojekt, ohne Verbindung zu Nintendo, Creatures, GAME FREAK oder The Pokémon Company.

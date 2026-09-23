@@ -1,0 +1,20 @@
+KAMPFCHECK - TESTVERSION FUER WINDOWS
+
+1. Kampfcheck-1.2.1-Test-Setup.exe herunterladen und starten.
+2. Beim ersten Installieren ist Internet erforderlich: ca. 151 MB Laufzeit-Download.
+3. Danach Kampfcheck ueber den Desktop oder das Startmenue starten.
+
+Windows 10/11, 64 Bit. Kein GitHub-Konto, kein Node.js und keine Administratorrechte noetig.
+Die Testversion ist nicht digital signiert. Windows kann deshalb einen unbekannten Herausgeber melden.
+
+Deine eigenen und gegnerischen Teams speicherst du direkt in der App unter einem Namen.
+Die Anfaengertipps sind freiwillig: oben auf "Anfaengertipps" klicken.
+Vor einem Update die laufende App schliessen. Bereits gespeicherte Teams bleiben erhalten.
+Rechner und gebuendelte Daten funktionieren offline; Bilder und aktuelle Meta-Daten brauchen Internet.
+
+Zum Weitergeben reicht die Setup-EXE. Sie enthaelt keine persoenlichen Teams, Zugangsdaten,
+Git-Historie oder Entwicklungsdateien. Der ausfuehrbare App-Code ist komprimiert verpackt,
+aber technisch auslesbar. Es handelt sich nicht um eine Verschluesselung des Programms.
+
+Inoffizielles Fanprojekt. Pokemon und zugehoerige Marken gehoeren ihren Rechteinhabern.
+Quellen und Grenzen der Berechnung stehen in der App unter "Daten & Hinweise".

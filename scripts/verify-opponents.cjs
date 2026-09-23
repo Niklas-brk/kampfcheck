@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-global.window=global;require('../dist/vendor/calc-data.min.js');require('../dist/vendor/calc.min.js');require('../dist/core.js');require('../dist/team-library.js');require('../dist/library-ui.js');
+global.window=global;require('../dist/vendor/calc-data.min.js');require('../dist/vendor/calc.min.js');require('../dist/core.js');require('../dist/team-library.js');require('../dist/view-helpers.js');require('../dist/library-ui.js');
 const data=new Map();global.localStorage={getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)};
 const events={},input={value:'Gegner geändert',focus(){},select(){}};const dialog={addEventListener:(name,fn)=>events[name]=fn,setAttribute(){},querySelector:()=>input,showModal(){},close(){}};
 global.document={getElementById:()=>dialog};global.scrollTo=()=>{};

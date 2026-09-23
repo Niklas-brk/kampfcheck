@@ -1,7 +1,7 @@
 {
   "name": "kampfcheck",
   "productName": "Kampfcheck",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "private": true,
   "description": "Deutscher Pokémon-Champions-Rechner für Windows und Browser",
   "main": "desktop/main.cjs",
@@ -9,6 +9,15 @@
     "start": "node scripts/serve.mjs",
     "test": "node scripts/verify.cjs && node scripts/verify-team.cjs && node scripts/verify-library.cjs && node scripts/verify-opponents.cjs && node scripts/verify-item-effects.cjs && node scripts/verify-legality.cjs",
     "build:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File desktop/build-windows.ps1",
-    "install:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File desktop/install-windows.ps1"
+    "install:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File desktop/install-windows.ps1",
+    "package:app": "node scripts/package-app.mjs",
+    "build:test": "powershell -NoProfile -ExecutionPolicy Bypass -File desktop/build-test-installer.ps1",
+    "format": "prettier --write dist/app.js dist/builder-ui.js dist/library-ui.js dist/core.js dist/legality.js dist/team-tools.js dist/team-library.js dist/meta.js dist/view-helpers.js dist/beginner-tips.js dist/style.css dist/index.html desktop/main.cjs scripts/*.mjs",
+    "test:package": "node scripts/verify-package.mjs"
+  },
+  "devDependencies": {
+    "@electron/asar": "4.3.0",
+    "esbuild": "0.28.2",
+    "prettier": "3.9.8"
   }
 }

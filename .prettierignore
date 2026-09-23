@@ -1,0 +1,11 @@
+node_modules/
+.cache/
+release/
+dist/vendor/
+dist/champions-data.js
+dist/german.js
+dist/german.json
+dist/item-icons.js
+dist/meta-snapshot.js
+dist/templates.js
+pnpm-lock.yaml
