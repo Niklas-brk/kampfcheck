@@ -1,6 +1,6 @@
 KAMPFCHECK - TESTVERSION FUER WINDOWS
 
-1. Kampfcheck-1.2.1-Test-Setup.exe herunterladen und starten.
+1. Kampfcheck-1.2.2-Test-Setup.exe herunterladen und starten.
 2. Beim ersten Installieren ist Internet erforderlich: ca. 151 MB Laufzeit-Download.
 3. Danach Kampfcheck ueber den Desktop oder das Startmenue starten.
 

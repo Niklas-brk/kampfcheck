@@ -462,6 +462,80 @@
       "</select></label>"
     );
   }
+  /** Zeigt nur Bedienelemente, die bei der gewählten Fähigkeit tatsächlich wirken. */
+  function abilityEffectField(set, side) {
+    if (side === "builder") return "";
+    const otherSide = side === "own" ? "foe" : "own";
+    const opponent = state[otherSide][state[otherSide + "Index"]];
+    const activation = BattleCore.abilityActivation(set, opponent, state.field, side === "foe");
+    if (activation) {
+      const statName = activation.stat === "spa" ? "Spezial-Angriff" : "Angriff";
+      const stages = activation.effectiveStages;
+      const stageLabel = stages > 0 ? "+" + stages : String(stages);
+      return html`<div class="ability-effect combat-only">
+        <strong data-ability-stage>${statName}: ${stageLabel} Stufen</strong>
+        <button
+          class="preset"
+          data-action="ability-boost"
+          data-side="${side}"
+          ${activation.automatic || activation.atLimit ? "disabled" : ""}
+        >
+          ${activation.automatic ? "Durch Bedroher bereits berechnet" : activation.atLimit ? "Maximum +6 erreicht" : esc(tr("abilities", set.ability)) + ": +2 " + statName + " anwenden"}
+        </button>
+        <p class="small-note">
+          ${
+            activation.automatic
+              ? "Die Reaktion auf gegnerischen Bedroher ist bereits eingerechnet. Kein zweites Mal hinzufügen."
+              : "Nur anklicken, wenn ein Gegner einen Statuswert gesenkt und die Fähigkeit ausgelöst hat. Jede bestätigte Auslösung erhöht die eingetragene Stufe um 2 (maximal +6)."
+          }
+        </p>
+        <p class="small-note">
+          ${
+            activation.stat === "spa"
+              ? "Wirkt auf ausgeteilten Spezial-Schaden. KP, Initiative und die Basiswerte unten bleiben unverändert."
+              : "Wirkt auf ausgeteilten physischen Schaden. Die Basiswerte unten bleiben unverändert."
+          }
+          Unter „Statusstufen ändern“ kannst du die Stufe wieder zurücksetzen.
+        </p>
+      </div>`;
+    }
+    if (set.ability === "Marvel Scale") {
+      return html`<p class="ability-effect small-note combat-only">
+        Notschutz wird bei einem Statusproblem automatisch berücksichtigt (Verteidigung ×1,5). Wähle
+        dafür oben den tatsächlichen Status, etwa Paralyse. Ein Aktivierungshaken ist nicht nötig.
+      </p>`;
+    }
+    if (set.ability === "Cute Charm") {
+      return html`<p class="ability-effect small-note combat-only">
+        Charmebolzen verändert den direkten Schaden und die Initiative nicht. Verliebtheit wird hier
+        nicht simuliert.
+      </p>`;
+    }
+    // Diese Fähigkeiten verwenden in der Champions-Engine tatsächlich abilityOn.
+    const toggles = {
+      Intimidate: "Angriffssenkung beim Gegenüber anwenden",
+      Unburden: "nach Item-Verlust aktiviert (Initiative ×2)",
+      "Flash Fire": "ausgelöst (Feuerattacken verstärkt)",
+      Electromorphosis: "aufgeladen (nächste Elektroattacke verstärkt)",
+      Stakeout: "Gegner ist gerade eingewechselt",
+      Analytic: "Analyse-Bonus für diesen Angriff anwenden",
+      Plus: "passender Plus-/Minus-Partner aktiv",
+      Minus: "passender Plus-/Minus-Partner aktiv",
+    };
+    if (!toggles[set.ability]) return "";
+    return html`<div class="combat-only">
+      <label class="toggle-label"
+        ><input
+          type="checkbox"
+          data-side="${side}"
+          data-field="abilityOn"
+          ${set.abilityOn ? "checked" : ""}
+        />
+        ${esc(tr("abilities", set.ability))}: ${toggles[set.ability]}</label
+      >
+      ${set.ability === "Intimidate" ? html`<p class="small-note">Wenn du die Bedroher-Senkung und ihre Gegenreaktion bereits unter „Statusstufen ändern“ eingetragen hast, lasse diesen Haken aus.</p>` : ""}
+    </div>`;
+  }
   function moveList(set, side) {
     return (
       '<datalist id="moves-' +
@@ -531,16 +605,7 @@
         <div class="form-row">
           ${abilityField(s, side)}${side === "builder" ? "" : select("Status", "status", s.status, statusList, side)}
         </div>
-        <label
-          class="toggle-label combat-only"
-          title="Für ausgelöste Effekte wie Bedroher oder aktiviertes Entlastung. Permanente Fähigkeiten funktionieren ohne Schalter."
-          ><input
-            type="checkbox"
-            data-side="${side}"
-            data-field="abilityOn"
-            ${s.abilityOn ? "checked" : ""}
-          />Ausgelöster Effekt aktiv (z. B. Bedroher)</label
-        >
+        ${abilityEffectField(s, side)}
         <div class="preset-row">
           <button class="preset" data-action="preset" data-side="${side}" data-value="fast">
             Maximal schnell</button
@@ -1180,6 +1245,22 @@
     if (!btn) return;
     const { action, side, index, value } = btn.dataset;
     if (TeamLibraryUI.handle(action, value)) return;
+    if (action === "ability-boost" && ["own", "foe"].includes(side)) {
+      const otherSide = side === "own" ? "foe" : "own";
+      const before = state[side][state[side + "Index"]];
+      const next = BattleCore.applyAbilityActivation(
+        before,
+        state[otherSide][state[otherSide + "Index"]],
+        state.field,
+        side === "foe",
+      );
+      if (next !== before) {
+        state[side][state[side + "Index"]] = next;
+        toast("Auslösung eingetragen. Statusstufe und Schadensberechnung sind aktualisiert.");
+      }
+      render();
+      return;
+    }
     if (action === "build-team") {
       TeamLibraryUI.beginBuilder();
       state.builder = structuredClone(state.own);
@@ -1509,7 +1590,10 @@
         state[side][state[side + "Index"]] = ChampionsRules.prepare(next);
         state[side + "Move"] = 0;
       } else if (move !== undefined) set.moves[Number(move)] = name;
-      else set[field] = name;
+      else {
+        set[field] = name;
+        if (field === "ability") set.abilityOn = false;
+      }
       touchOwn(side);
     } else if (field === "hp")
       set.hp = BattleCore.clamp(

@@ -781,6 +781,32 @@ input[type="number"] {
   margin-top: 11px;
 }
 
+/* Ausgelöste Fähigkeiten: wirksame Statusstufe direkt an der Bedienung zeigen. */
+.ability-effect {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.ability-effect strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+  color: var(--blue);
+}
+
+.ability-effect .preset {
+  width: 100%;
+  white-space: normal;
+}
+
+.ability-effect .preset:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
 .stats-block {
   padding: 16px 18px;
   border-top: 1px solid var(--line);

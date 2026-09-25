@@ -105,7 +105,7 @@ Ein Compiler an einem anderen Ort lässt sich ausdrücklich angeben:
 powershell -NoProfile -ExecutionPolicy Bypass -File desktop/build-test-installer.ps1 -NsisCompiler "C:\Werkzeuge\nsis-3.12\makensis.exe"
 ```
 
-Für Version 1.2.1 entstehen `release/Testversion/Kampfcheck-1.2.1-Test-Setup.exe` und die kurze Anleitung `TESTVERSION-LESEN.txt`. Die ungefähr 0,42 MB große EXE enthält das App-Paket und die Installationslogik. Bei der ersten Installation lädt sie die etwa 151 MB große Electron-Laufzeit, prüft sie und installiert ohne Administratorrechte. Tester benötigen weder Node.js noch pnpm noch Zugriff auf das private GitHub-Repository. Nach der Installation funktionieren Berechnungen und gebündelte Daten offline; externe Bilder, Schriften und aktuelle Meta-Daten benötigen Internet.
+Für Version 1.2.2 entstehen `release/Testversion/Kampfcheck-1.2.2-Test-Setup.exe` und die kurze Anleitung `TESTVERSION-LESEN.txt`. Die ungefähr 0,42 MB große EXE enthält das App-Paket und die Installationslogik. Bei der ersten Installation lädt sie die etwa 151 MB große Electron-Laufzeit, prüft sie und installiert ohne Administratorrechte. Tester benötigen weder Node.js noch pnpm noch Zugriff auf das private GitHub-Repository. Nach der Installation funktionieren Berechnungen und gebündelte Daten offline; externe Bilder, Schriften und aktuelle Meta-Daten benötigen Internet.
 
 ASAR ist ein Archivformat, keine Verschlüsselung. Minimierung entfernt die lesbare Entwicklungsfassung und JavaScript-Kommentare aus der verteilten Ausgabe, verhindert aber nicht das technische Auslesen des ausführbaren Codes. Deshalb dürfen Geheimnisse grundsätzlich nicht im Frontend oder Desktop-Paket stehen.
 

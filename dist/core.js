@@ -101,6 +101,19 @@
     const attackerPokemon = makePokemon(attacker),
       defenderPokemon = makePokemon(defender),
       battleField = makeField(field, !!options.reverse);
+    // Bei bereits -6 Angriff kann Bedroher nichts mehr senken. Die Engine 0.12.0
+    // löst Unbeugsamkeit/Siegeswille sonst trotzdem aus; eine echte Senkung ist nötig.
+    for (const [source, target] of [
+      [attackerPokemon, defenderPokemon],
+      [defenderPokemon, attackerPokemon],
+    ]) {
+      if (
+        source.hasAbility("Intimidate") &&
+        target.hasAbility("Competitive", "Defiant") &&
+        target.boosts.atk === -6
+      )
+        source.abilityOn = false;
+    }
     const moveData = G.moves.get(C.toID(moveName));
     const allowedHits = hitOptions(attacker, moveName),
       requestedHits = allowedHits.includes(options.hits)
@@ -188,6 +201,39 @@
       defenderSpeed: speeds.defender.stats.spe,
     };
   }
+  /**
+   * Manche ausgelösten Fähigkeiten werden als Statusstufe erfasst, nicht als
+   * abilityOn-Schalter. Die Engine-Auswertung erkennt eine bereits automatisch
+   * berechnete Bedroher-Reaktion und verhindert einen zusätzlichen Klick-Bonus.
+   */
+  function abilityActivation(set, opponent, field, reverse = false) {
+    const stat = { Competitive: "spa", Defiant: "atk" }[set.ability];
+    if (!stat) return null;
+    const stages = set.boosts?.[stat] || 0;
+    const effectiveStages = analyze(set, opponent, "(No Move)", field, { reverse }).result.attacker
+      .boosts[stat];
+    return {
+      stat,
+      amount: 2,
+      stages,
+      effectiveStages,
+      automatic: effectiveStages > stages,
+      atLimit: stages >= 6,
+    };
+  }
+  /** Trägt eine bestätigte frühere Auslösung ein; verändert das ursprüngliche Set nie. */
+  function applyAbilityActivation(set, opponent, field, reverse = false) {
+    const activation = abilityActivation(set, opponent, field, reverse);
+    if (!activation || activation.automatic || activation.atLimit) return set;
+    return {
+      ...set,
+      abilityOn: false,
+      boosts: {
+        ...set.boosts,
+        [activation.stat]: Math.min(6, activation.stages + activation.amount),
+      },
+    };
+  }
   /** Attackenpriorität einschließlich der hier unterstützten Fähigkeiten/Feldeffekte. */
   function effectivePriority(set, moveName, field) {
     const move = new C.Move(G, moveName),
@@ -259,6 +305,8 @@
     distribution,
     hitOptions,
     analyze,
+    abilityActivation,
+    applyAbilityActivation,
     effectivePriority,
     order,
     validate,

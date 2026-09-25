@@ -1,6 +1,6 @@
 # Kampfcheck
 
-Deutscher Pokémon-Champions-Rechner für Einzel- und Doppelkampf, mit eigener Windows-App. Aktuelle Version: **1.2.1**.
+Deutscher Pokémon-Champions-Rechner für Einzel- und Doppelkampf, mit eigener Windows-App. Aktuelle Version: **1.2.2**.
 
 - Initiative, Schaden und Überlebenschancen vergleichen; Ergebnisse einzeln einklappen.
 - Eigene Teams und Gegnerteams benennen, speichern und wieder auswählen.
@@ -10,10 +10,11 @@ Deutscher Pokémon-Champions-Rechner für Einzel- und Doppelkampf, mit eigener W
 - Pokémon-Auswahl nach Reglement M-C, mit artbezogenen Champions-Attacken und Fähigkeiten. Unzulässige ältere Sets werden markiert; ihre gespeicherten Daten bleiben lesbar.
 - Darkmode, Typencheck, Meta-Daten und Turnier-Vorlagen mit Quellen.
 - Optional einschaltbare Anfängertipps zu Initiative, Schaden, Teambau und gespeicherten Teams.
+- Fähigkeiten passend bedienen: Unbeugsamkeit/Siegeswille als sichtbare +2-Statusstufe eintragen, Bedroher-Reaktionen automatisch berücksichtigen, Notschutz über den Status aktivieren.
 
 ## Testversion weitergeben
 
-Zum Weitergeben über Discord ist nur die kleine Datei `release/Testversion/Kampfcheck-1.2.1-Test-Setup.exe` nötig, bei Bedarf zusammen mit `TESTVERSION-LESEN.txt` aus demselben Ordner. Das Setup ist ungefähr 0,42 MB groß. Es installiert die App für den aktuellen Benutzer unter Windows 10/11 (x64), ohne Administratorrechte. Bei der ersten Installation lädt es die festgelegte Electron-Laufzeit 44.4.3 aus dem offiziellen GitHub-Release herunter (etwa 151 MB) und prüft deren SHA-256-Prüfsumme. Dafür wird eine Internetverbindung benötigt.
+Zum Weitergeben über Discord ist nur die kleine Datei `release/Testversion/Kampfcheck-1.2.2-Test-Setup.exe` nötig, bei Bedarf zusammen mit `TESTVERSION-LESEN.txt` aus demselben Ordner. Das Setup ist ungefähr 0,42 MB groß. Es installiert die App für den aktuellen Benutzer unter Windows 10/11 (x64), ohne Administratorrechte. Bei der ersten Installation lädt es die festgelegte Electron-Laufzeit 44.4.3 aus dem offiziellen GitHub-Release herunter (etwa 151 MB) und prüft deren SHA-256-Prüfsumme. Dafür wird eine Internetverbindung benötigt.
 
 Das Setup enthält die minimierten Programmdateien in einem ASAR-Archiv. Das lesbare Entwicklungsprojekt, JavaScript-Quellkommentare, Source Maps, Git-Historie, persönliche Teams und Benutzerprofile werden nicht mitgegeben. **ASAR und Minimierung sind keine Verschlüsselung:** Der lokal ausführbare App-Code bleibt technisch auslesbar. Das private GitHub-Repository muss zum Testen weder geteilt noch zugänglich gemacht werden.
 
